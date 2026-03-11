@@ -29,7 +29,7 @@ test {
 }
 
 application {
-    mainClass = 'seedu.JobPilot.JobPilot'
+    mainClass.set('seedu.JobPilot.JobPilot')
 }
 
 shadowJar {
