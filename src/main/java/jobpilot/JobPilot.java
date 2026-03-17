@@ -8,15 +8,22 @@ import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
+/**
+ * Main class for the JobPilot application.
+ * Handles the user interface and coordinates application logic.
+ */
 public class JobPilot {
+    private static final Logger LOGGER = Logger.getLogger(JobPilot.class.getName());
 
     /**
      * Adds a new job application to the list.
      *
-     * @param applications The list of job applications
-     * @param input        The raw user command string
-     * @throws JobPilotException If there's an error in the command format
+     * @param applications The list of job applications.
+     * @param input        The raw user command string.
+     * @throws JobPilotException If there's an error in the command format.
      */
     public static void addApplication(ArrayList<Add> applications, String input) throws JobPilotException {
         try {
@@ -41,7 +48,6 @@ public class JobPilot {
             }
 
             Add app = new Add(company, position, dateStr);
-
             applications.add(app);
             System.out.println("Added: " + app);
 
@@ -53,20 +59,18 @@ public class JobPilot {
     }
 
     /**
-     * Method for listing all the applications
+     * Lists all current job applications.
      *
-     * @param applications
+     * @param applications The list of job applications to display.
      */
     public static void listApplications(ArrayList<Add> applications) {
         assert applications != null : "Application list should not be null";
-        if (applications == null) {
-            System.out.println("Error: application list is not initialized.");
-            return;
-        }
+
         if (applications.isEmpty()) {
             System.out.println("There is no application yet.");
             return;
         }
+
         System.out.println("Here are your applications:");
         int index = 0;
         for (Add app : applications) {
@@ -79,6 +83,11 @@ public class JobPilot {
         }
     }
 
+    /**
+     * Sorts applications by submission date.
+     *
+     * @param applications The list of job applications to sort.
+     */
     public static void sortApplications(ArrayList<Add> applications) {
         if (applications.isEmpty()) {
             System.out.println("No applications to sort!");
@@ -96,21 +105,27 @@ public class JobPilot {
      * @param input        The raw user command string.
      */
     public static void updateStatus(ArrayList<Add> applications, String input) {
+        assert applications != null : "Applications list should not be null";
+        assert input != null : "Input command string should not be null";
+        assert input.startsWith("status ") : "Input must start with 'status ' prefix";
+
+        LOGGER.log(Level.INFO, "Attempting to update status with input: " + input);
+
         try {
-            // Format: status INDEX set/STATUS note/NOTE
             int setIndex = input.indexOf("set/");
             int noteIndex = input.indexOf("note/");
 
             if (setIndex == -1 || noteIndex == -1) {
+                LOGGER.log(Level.WARNING, "Invalid status update format provided: " + input);
                 System.out.println("Invalid format! Use: status INDEX set/STATUS note/NOTE");
                 return;
             }
 
-            // Extract the index (between 'status ' and ' set/')
             String indexStr = input.substring("status ".length(), setIndex).trim();
             int listIndex = Integer.parseInt(indexStr) - 1;
 
             if (listIndex < 0 || listIndex >= applications.size()) {
+                LOGGER.log(Level.WARNING, "Status update failed: Index " + (listIndex + 1) + " out of bounds");
                 System.out.println("Invalid index! Application not found.");
                 return;
             }
@@ -118,39 +133,38 @@ public class JobPilot {
             String newStatus = input.substring(setIndex + 4, noteIndex).trim().toUpperCase();
             String note = input.substring(noteIndex + 5).trim();
 
-            // Update the application
             Add app = applications.get(listIndex);
-            app.setStatus(newStatus + " (Note: " + note + ")");
+            assert app != null : "Retrieved application at index " + listIndex + " should not be null";
 
+            app.setStatus(newStatus + " (Note: " + note + ")");
+            LOGGER.log(Level.INFO, "Successfully updated status for application at index " + listIndex);
             System.out.println("Updated Status: " + app);
-        } catch (Exception e) {
+
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, "Failed to parse index from input: " + input, e);
             System.out.println("Error parsing status command. Ensure index is a number.");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error during status update", e);
         }
     }
 
-
     /**
      * Main entry-point for the application.
+     *
+     * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        String logo = ""
-                + "     _   ___   ____   ____   ___  _       ___   _____ \n"
-                + "    | | / _ \\ | __ ) |  _ \\ |_ _|| |     / _ \\ |_   _|\n"
-                + " _  | || | | ||  _ \\ | |_) | | | | |    | | | |  | |  \n"
-                + "| |_| || |_| || |_) ||  __/  | | | |___ | |_| |  | |  \n"
-                + " \\___/  \\___/ |____/ |_|    |___||_____| \\___/   |_|  \n";
-        System.out.println("Hello from\n" + logo);
+        String logo = """
+                 _   ___   ____   ____   ___  _       ___   _____
+                | | / _ \\ | __ ) |  _ \\ |_ _|| |     / _ \\ |_   _|
+             _  | || | | ||  _ \\ | |_) | | | | |    | | | |  | |
+            | |_| || |_| || |_) ||  __/  | | | |___ | |_| |  | |
+             \\___/  \\___/ |____/ |_|    |___||_____| \\___/   |_|
+            """;
 
+        System.out.println("Hello from\n" + logo);
         System.out.println("Welcome to JobPilot!");
         System.out.println("Commands: add | list | sort | status | delete | bye");
-        // Check if assertions are enabled
-        // boolean assertionsEnabled = false;
-        // assert assertionsEnabled = true;
-        // if (assertionsEnabled) {
-        //    System.out.println("ASSERTIONS ARE ENABLED");
-        // } else {
-        //    System.out.println("ASSERTIONS ARE DISABLED - Use java -ea");
-        // }
 
         Scanner in = new Scanner(System.in);
         ArrayList<Add> applications = new ArrayList<>();
@@ -183,16 +197,15 @@ public class JobPilot {
                 System.out.println("Unknown command. Use: add or list or sort or status or delete or bye");
             }
         }
-
         in.close();
     }
 
     /**
-     * Deletes an application from the list by parsing the index provided by the user.
+     * Helper to delete an application from the list.
      *
-     * @param input        The full user command (e.g., "delete 2").
+     * @param input        The full user command.
      * @param applications The list storing all job applications.
-     * @throws JobPilotException If the index provided is not a valid integer.
+     * @throws JobPilotException If the index provided is invalid.
      */
     private static void deleteApplication(String input, ArrayList<Add> applications) throws JobPilotException {
         try {
@@ -202,6 +215,5 @@ public class JobPilot {
         }
     }
 }
-
 
 
