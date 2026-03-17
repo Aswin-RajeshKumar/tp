@@ -34,3 +34,7 @@ shadowJar {
         attributes 'Main-Class': 'jobpilot.JobPilot'
     }
 }
+
+run {
+    enableAssertions = true
+}

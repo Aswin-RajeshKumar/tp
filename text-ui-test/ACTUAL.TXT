@@ -25,4 +25,8 @@ You have 2 application(s) left.
 > Here are your applications:
 1. Google | SE manager | 2025-03-10 | Pending
 2. Microsoft | SDE Intern | 2025-03-12 | Pending
+<<<<<<< HEAD
+Bye! You added 2 application(s).
+=======
 > Bye! You added 2 application(s).
+>>>>>>> 6fbb3caca3f699f551210ea3b7d8c4541c46c9c2
