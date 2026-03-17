@@ -15,7 +15,7 @@ public class JobPilot {
      * Adds a new job application to the list.
      *
      * @param applications The list of job applications
-     * @param input The raw user command string
+     * @param input        The raw user command string
      * @throws JobPilotException If there's an error in the command format
      */
     public static void addApplication(ArrayList<Add> applications, String input) throws JobPilotException {
@@ -58,15 +58,24 @@ public class JobPilot {
      * @param applications
      */
     public static void listApplications(ArrayList<Add> applications) {
+        assert applications != null : "Application list should not be null";
+        if (applications == null) {
+            System.out.println("Error: application list is not initialized.");
+            return;
+        }
         if (applications.isEmpty()) {
             System.out.println("There is no application yet.");
-        } else {
-            System.out.println("Here are your applications:");
-            int index = 0;
-            for (Add app : applications) {
-                System.out.println((index + 1) + ". " + applications.get(index));
-                index++;
+            return;
+        }
+        System.out.println("Here are your applications:");
+        int index = 0;
+        for (Add app : applications) {
+            if (app == null) {
+                System.out.println((index + 1) + ". [Invalid application data]");
+            } else {
+                System.out.println((index + 1) + ". " + app);
             }
+            index++;
         }
     }
 
@@ -84,7 +93,7 @@ public class JobPilot {
      * Updates the status and note of an existing application.
      *
      * @param applications The list containing job applications.
-     * @param input The raw user command string.
+     * @param input        The raw user command string.
      */
     public static void updateStatus(ArrayList<Add> applications, String input) {
         try {
@@ -181,7 +190,7 @@ public class JobPilot {
     /**
      * Deletes an application from the list by parsing the index provided by the user.
      *
-     * @param input The full user command (e.g., "delete 2").
+     * @param input        The full user command (e.g., "delete 2").
      * @param applications The list storing all job applications.
      * @throws JobPilotException If the index provided is not a valid integer.
      */
