@@ -11,14 +11,14 @@ import java.util.Collections;
  * Represents a job application and provides methods to manage its data.
  */
 
-public class Add implements Comparable<Add> {
+public class Application implements Comparable<Application> {
     private String company;
     private String position;
     private LocalDate date;
     private String status;
     private String notes;
 
-    public Add(String company, String position, String date) throws DateTimeParseException {
+    public Application(String company, String position, String date) throws DateTimeParseException {
         assert company != null: "Company cannot be null" ;
         assert position != null: "Position cannot be null";
         assert date != null: "Date cannot be null";
@@ -35,7 +35,7 @@ public class Add implements Comparable<Add> {
     }
 
     @Override
-    public int compareTo(Add other) {
+    public int compareTo(Application other) {
         assert other != null: "Cannot compare with null object";
         assert other.date != null: "Other applications has null date";
 
