@@ -78,6 +78,39 @@ public class Application implements Comparable<Application> {
         return notes;
     }
 
+    /**
+     * Updates the company name of this application.
+     *
+     * @param company The new company name
+     */
+    public void setCompany(String company) {
+        assert company != null && !company.trim().isEmpty()
+                : "Company name cannot be null or empty";
+        this.company = company;
+    }
+
+    /**
+     * Updates the position title of this application.
+     *
+     * @param position The new position title
+     */
+    public void setPosition(String position) {
+        assert position != null && !position.trim().isEmpty()
+                : "Position cannot be null or empty";
+        this.position = position;
+    }
+
+    /**
+     * Updates the submission date of this application.
+     *
+     * @param date The new date in YYYY-MM-DD format
+     */
+    public void setDate(String date) {
+        assert date != null && !date.trim().isEmpty()
+                : "Date cannot be null or empty";
+        this.date = LocalDate.parse(date);
+    }
+
     @Override
     public String toString() {
         assert company != null: "Company cannot be null" ;

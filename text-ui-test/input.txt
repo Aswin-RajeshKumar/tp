@@ -19,4 +19,7 @@ tag 2 remove/FINANCE
 delete 1
 list
 search google
+edit 1 c/Apple
+edit 1 d/2027-01-09
+list
 bye

@@ -8,16 +8,17 @@ Hello from
 Welcome to JobPilot!
 Type 'help' to see all available commands!
 Available Commands:
-add c/COMPANY p/POSITION d/DATE    Add a new job application
-list                               List all job applications
-delete INDEX                       Delete an application
-sort                               Sort applications by date
-search COMPANY_NAME                Search applications by company name
-status INDEX set/STATUS note/NOTE  Update application status and add a note
-tag INDEX add/TAG                  Add a tag to an application
-tag INDEX remove/TAG               Remove a tag from an application
-help                               Show this message
-bye                                Exit the application
+add c/COMPANY p/POSITION d/DATE                             Add a new job application
+edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]     Edit existing application
+list                                                        List all job applications
+delete INDEX                                                Delete an application
+sort                                                        Sort applications by date
+search COMPANY_NAME                                         Search applications by company name
+status INDEX set/STATUS note/NOTE                           Update application status and add a note
+tag INDEX add/TAG                                           Add a tag to an application
+tag INDEX remove/TAG                                        Remove a tag from an application
+help                                                        Show this message
+bye                                                         Exit the application
 
 Added: Google | SE manager | 2025-03-10 | Pending
 Added: Amazon | Data Analyst | 2025-03-08 | Pending
@@ -26,11 +27,11 @@ Here are your applications:
 1. Google | SE manager | 2025-03-10 | Pending
 2. Amazon | Data Analyst | 2025-03-08 | Pending
 3. Microsoft | SDE Intern | 2025-03-12 | Pending
-Added tag: TECH ->Google | SE manager | 2025-03-10 | Pending | Tags: [TECH]
-Added tag: FINANCE ->Amazon | Data Analyst | 2025-03-08 | Pending | Tags: [FINANCE]
-Added tag: DATA ->Amazon | Data Analyst | 2025-03-08 | Pending | Tags: [FINANCE, DATA]
-Added tag: TECH ->Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH]
-Added tag: INTERN ->Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH, INTERN]
+Added tag: TECH -> Google | SE manager | 2025-03-10 | Pending | Tags: [TECH]
+Added tag: FINANCE -> Amazon | Data Analyst | 2025-03-08 | Pending | Tags: [FINANCE]
+Added tag: DATA -> Amazon | Data Analyst | 2025-03-08 | Pending | Tags: [FINANCE, DATA]
+Added tag: TECH -> Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH]
+Added tag: INTERN -> Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH, INTERN]
 Updated Status: Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
 Updated Status: Amazon | Data Analyst | 2025-03-08 | INTERVIEW (Note: Case study prep) | Tags: [FINANCE, DATA]
 Updated Status: Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
@@ -47,7 +48,7 @@ Here are your applications:
 1. Amazon | Data Analyst | 2025-03-08 | INTERVIEW (Note: Case study prep) | Tags: [FINANCE, DATA]
 2. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
 3. Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
-Removed tag: /FINANCE ->Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Removed tag: /FINANCE -> Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
 Deleted application:
 Amazon | Data Analyst | 2025-03-08 | INTERVIEW (Note: Case study prep) | Tags: [FINANCE, DATA]
 You have 2 application(s) left.
@@ -56,4 +57,11 @@ Here are your applications:
 2. Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
 Found 1 application(s) matching 'google':
 1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Updated application:
+Apple | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Updated application:
+Apple | SE manager | 2027-01-09 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Here are your applications:
+1. Apple | SE manager | 2027-01-09 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+2. Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
 Bye! You added 2 application(s).
