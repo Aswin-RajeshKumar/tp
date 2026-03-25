@@ -1,14 +1,12 @@
-package jobpilot;
+package ui;
 
 import exception.JobPilotException;
-import task.Add;
-import task.Delete;
-import task.Help;
+import task.Application;
+import task.Deleter;
 import task.IndustryTag;
 
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -20,14 +18,8 @@ import java.util.logging.Level;
 public class JobPilot {
     private static final Logger LOGGER = Logger.getLogger(JobPilot.class.getName());
 
-    /**
-     * Adds a new job application to the list.
-     *
-     * @param applications The list of job applications.
-     * @param input        The raw user command string.
-     * @throws JobPilotException If there's an error in the command format.
-     */
-    public static void addApplication(ArrayList<Add> applications, String input) throws JobPilotException {
+    public static void addApplication(ArrayList<Application> applications, String input, Ui ui)
+            throws JobPilotException {
         try {
             int cIndex = input.indexOf("c/");
             int pIndex = input.indexOf("p/");
@@ -49,73 +41,42 @@ public class JobPilot {
                 throw new JobPilotException("Fields cannot be empty!");
             }
 
-            Add app = new Add(company, position, dateStr);
+            Application app = new Application(company, position, dateStr);
             applications.add(app);
-            System.out.println("Added: " + app);
+            ui.showApplicationAdded(app);
 
         } catch (DateTimeParseException e) {
-            System.out.println("Invalid date! Please use YYYY-MM-DD (e.g., 2024-09-12)");
+            ui.showError("Invalid date! Please use YYYY-MM-DD (e.g., 2024-09-12)");
         } catch (StringIndexOutOfBoundsException e) {
             throw new JobPilotException("Error parsing command!");
         }
     }
 
-    /**
-     * Lists all current job applications.
-     *
-     * @param applications The list of job applications to display.
-     */
-    public static void listApplications(ArrayList<Add> applications) {
+    public static void listApplications(ArrayList<Application> applications, Ui ui) {
         assert applications != null : "Application list should not be null";
-
-        if (applications.isEmpty()) {
-            System.out.println("There is no application yet.");
-            return;
-        }
-
-        System.out.println("Here are your applications:");
-        int index = 0;
-        for (Add application : applications) {
-            if (application == null) {
-                System.out.println((index + 1) + ". [Invalid application data]");
-            } else {
-                System.out.println((index + 1) + ". " + application);
-            }
-            index++;
-        }
+        ui.showApplicationList(applications);
     }
 
-    /**
-     * Sorts applications by submission date.
-     *
-     * @param applications The list of job applications to sort.
-     */
-    public static void sortApplications(ArrayList<Add> applications) {
+    public static void sortApplications(ArrayList<Application> applications, Ui ui) {
         assert applications != null : "applications list cannot be null (sort operation failed)";
 
         if (applications.isEmpty()) {
-            System.out.println("No applications to sort!");
+            ui.showMessage("No applications to sort!");
             return;
         }
 
         try {
             Collections.sort(applications);
-            System.out.println("Sorted by submission date!");
-            listApplications(applications);
+            ui.showSortedMessage();
+            ui.showApplicationList(applications);
         } catch (NullPointerException e) {
-            System.out.println("Sort failed: Some applications have invalid submission date (null)");
+            ui.showError("Sort failed: Some applications have invalid submission date (null)");
         } catch (ClassCastException e) {
-            System.out.println("Sort failed: Applications cannot be sorted (missing Comparable implementation)");
+            ui.showError("Sort failed: Applications cannot be sorted (missing Comparable implementation)");
         }
     }
 
-    /**
-     * Updates the status and note of an existing application (separated fields).
-     *
-     * @param applications The list containing job applications.
-     * @param input        The raw user command string.
-     */
-    public static void updateStatus(ArrayList<Add> applications, String input) {
+    public static void updateStatus(ArrayList<Application> applications, String input, Ui ui) {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("status ") : "Input must start with 'status ' prefix";
@@ -128,7 +89,7 @@ public class JobPilot {
 
             if (setIndex == -1 || noteIndex == -1) {
                 LOGGER.log(Level.WARNING, "Invalid status update format provided: " + input);
-                System.out.println("Invalid format! Use: status INDEX set/STATUS note/NOTE");
+                ui.showError("Invalid format! Use: status INDEX set/STATUS note/NOTE");
                 return;
             }
 
@@ -137,39 +98,32 @@ public class JobPilot {
 
             if (listIndex < 0 || listIndex >= applications.size()) {
                 LOGGER.log(Level.WARNING, "Status update failed: Index " + (listIndex + 1) + " out of bounds");
-                System.out.println("Invalid index! Application not found.");
+                ui.showError("Invalid index! Application not found.");
                 return;
             }
 
             String newStatus = input.substring(setIndex + 4, noteIndex).trim().toUpperCase();
             String note = input.substring(noteIndex + 5).trim();
 
-            Add app = applications.get(listIndex);
+            Application app = applications.get(listIndex);
             assert app != null : "Retrieved application at index " + listIndex + " should not be null";
 
             app.setStatus(newStatus);
             app.setNotes(note);
 
             LOGGER.log(Level.INFO, "Successfully updated status for application at index " + listIndex);
-            System.out.println("Updated Status: " + app);
+            ui.showStatusUpdated(app);
 
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, "Failed to parse index from input: " + input, e);
-            System.out.println("Error parsing status command. Ensure index is a number.");
+            ui.showError("Error parsing status command. Ensure index is a number.");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unexpected error during status update", e);
         }
     }
 
-    /**
-     * Adds/removes industry tags to/from a job application.
-     * Command format: tag INDEX add/TAG or tag INDEX remove/TAG
-     *
-     * @param applications The list of job applications.
-     * @param input        The raw user command string.
-     * @throws JobPilotException If there's an error in the command format.
-     */
-    public static void tagApplication(ArrayList<Add> applications, String input) throws JobPilotException {
+    public static void tagApplication(ArrayList<Application> applications, String input, Ui ui)
+            throws JobPilotException {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("tag ") : "Input must start with 'tag ' prefix";
@@ -197,15 +151,15 @@ public class JobPilot {
             String tagStr = input.substring(tagStartIndex).trim();
             IndustryTag tag = new IndustryTag(tagStr);
 
-            Add app = applications.get(listIndex);
+            Application app = applications.get(listIndex);
             if (isAdd) {
                 app.addIndustryTag(tag);
                 LOGGER.log(Level.INFO, "Added tag " + tag + " to application at index " + listIndex);
-                System.out.println("Added tag: " + tag + " ->" + app);
+                ui.showTagAdded(tag, app);
             } else {
                 app.removeIndustryTag(tag);
                 LOGGER.log(Level.INFO, "Removed tag " + tag + " from application at index " + listIndex);
-                System.out.println("Removed tag: " + tag + " ->" + app);
+                ui.showTagRemoved(tag, app);
             }
 
         } catch (NumberFormatException e) {
@@ -216,13 +170,7 @@ public class JobPilot {
         }
     }
 
-    /**
-     * Searches applications by company name (case-insensitive, partial match).
-     *
-     * @param applications The list of job applications to search.
-     * @param input        The raw user command string.
-     */
-    public static void searchByCompany(ArrayList<Add> applications, String input) {
+    public static void searchByCompany(ArrayList<Application> applications, String input, Ui ui) {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("search ") : "Input must start with 'search ' prefix";
@@ -234,16 +182,16 @@ public class JobPilot {
 
             if (searchTerm.isEmpty()) {
                 LOGGER.log(Level.WARNING, "Empty search term provided");
-                System.out.println("Please provide a company name to search. Example: search google");
+                ui.showError("Please provide a company name to search. Example: search google");
                 return;
             }
             if (applications.isEmpty()) {
-                System.out.println("No applications to search!");
+                ui.showMessage("No applications to search!");
                 return;
             }
 
-            ArrayList<Add> results = new ArrayList<>();
-            for (Add application : applications) {
+            ArrayList<Application> results = new ArrayList<>();
+            for (Application application : applications) {
                 assert application != null : "Application in list should not be null";
                 String company = application.getCompany();
                 assert company != null : "Company name should not be null";
@@ -253,99 +201,71 @@ public class JobPilot {
             }
 
             LOGGER.log(Level.INFO, "Search found " + results.size() + " result(s) for term: " + searchTerm);
-
-            if (results.isEmpty()) {
-                System.out.println("No applications found for company: " + searchTerm);
-            } else {
-                System.out.println("Found " + results.size() + " application(s) matching '" + searchTerm + "':");
-                for (int i = 0; i < results.size(); i++) {
-                    System.out.println((i + 1) + ". " + results.get(i));
-                }
-            }
+            ui.showSearchResults(results, searchTerm);
 
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.log(Level.SEVERE, "Error parsing search command: " + input, e);
-            System.out.println("Invalid search format! Use: search COMPANY_NAME");
+            ui.showError("Invalid search format! Use: search COMPANY_NAME");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unexpected error during search", e);
-            System.out.println("An error occurred while searching.");
+            ui.showError("An error occurred while searching.");
         }
     }
 
-    /**
-     * Main entry-point for the application.
-     *
-     * @param args Command line arguments.
-     */
     public static void main(String[] args) {
         LOGGER.setLevel(Level.OFF);
 
-        String logo = """
-                 _   ___   ____   ____   ___  _       ___   _____
-                | | / _ \\ | __ ) |  _ \\ |_ _|| |     / _ \\ |_   _|
-             _  | || | | ||  _ \\ | |_) | | | | |    | | | |  | |
-            | |_| || |_| || |_) ||  __/  | | | |___ | |_| |  | |
-             \\___/  \\___/ |____/ |_|    |___||_____| \\___/   |_|
-            """;
+        Ui ui = new Ui();
+        ui.showWelcome();
 
-        System.out.println("Hello from\n" + logo);
-        System.out.println("Welcome to JobPilot!");
-        System.out.println("Type 'help' to see all available commands!");
-
-        Scanner in = new Scanner(System.in);
-        ArrayList<Add> applications = new ArrayList<>();
+        ArrayList<Application> applications = new ArrayList<>();
 
         while (true) {
-            String input = in.nextLine().trim();
+            String input = ui.readCommand();
 
             if (input.equals("bye")) {
-                System.out.println("Bye! You added " + applications.size() + " application(s).");
+                ui.showGoodbye(applications.size());
                 break;
             } else if (input.equals("help")) {
-                Help.showHelpMessage();
+                ui.showHelp();
             } else if (input.startsWith("add")) {
                 try {
-                    addApplication(applications, input);
+                    addApplication(applications, input, ui);
                 } catch (JobPilotException e) {
-                    System.out.println(e.getMessage());
+                    ui.showError(e.getMessage());
                 }
             } else if (input.equals("list")) {
-                listApplications(applications);
+                listApplications(applications, ui);
             } else if (input.startsWith("search")) {
-                searchByCompany(applications, input);
+                searchByCompany(applications, input, ui);
             } else if (input.equals("sort")) {
-                sortApplications(applications);
+                sortApplications(applications, ui);
             } else if (input.startsWith("status ")) {
-                updateStatus(applications, input);
+                updateStatus(applications, input, ui);
             } else if (input.startsWith("tag ")) {
                 try {
-                    tagApplication(applications, input);
+                    tagApplication(applications, input, ui);
                 } catch (JobPilotException e) {
-                    System.out.println(e.getMessage());
+                    ui.showError(e.getMessage());
                 }
             } else if (input.startsWith("delete")) {
                 try {
-                    deleteApplication(input, applications);
+                    deleteApplication(input, applications, ui);
                 } catch (JobPilotException e) {
-                    System.out.println(e.getMessage());
+                    ui.showError(e.getMessage());
                 }
             } else {
-                System.out.println("Unknown command. Use 'help' to see all available commands !");
+                ui.showError("Unknown command. Use 'help' to see all available commands!");
             }
         }
-        in.close();
+        ui.close();
     }
 
-    /**
-     * Helper to delete an application from the list.
-     *
-     * @param input        The full user command.
-     * @param applications The list storing all job applications.
-     * @throws JobPilotException If the index provided is invalid.
-     */
-    private static void deleteApplication(String input, ArrayList<Add> applications) throws JobPilotException {
+    private static void deleteApplication(String input, ArrayList<Application> applications, Ui ui)
+            throws JobPilotException {
         try {
-            Delete.deleteApplication(input, applications);
+            Application removed = Deleter.deleteApplication(input, applications);
+            ui.showApplicationDeleted(removed, applications.size());
         } catch (NumberFormatException e) {
             throw new JobPilotException("Invalid format! Use: delete INDEX");
         }
