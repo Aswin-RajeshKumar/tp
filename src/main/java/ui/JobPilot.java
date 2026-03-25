@@ -1,10 +1,7 @@
-package jobpilot;
+package ui;
 
 import exception.JobPilotException;
-import task.Add;
-import task.Delete;
-import task.Help;
-import task.IndustryTag;
+import task.*;
 
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
@@ -27,7 +24,7 @@ public class JobPilot {
      * @param input        The raw user command string.
      * @throws JobPilotException If there's an error in the command format.
      */
-    public static void addApplication(ArrayList<Add> applications, String input) throws JobPilotException {
+    public static void addApplication(ArrayList<Application> applications, String input) throws JobPilotException {
         try {
             int cIndex = input.indexOf("c/");
             int pIndex = input.indexOf("p/");
@@ -49,7 +46,7 @@ public class JobPilot {
                 throw new JobPilotException("Fields cannot be empty!");
             }
 
-            Add app = new Add(company, position, dateStr);
+            Application app = new Application(company, position, dateStr);
             applications.add(app);
             System.out.println("Added: " + app);
 
@@ -65,7 +62,7 @@ public class JobPilot {
      *
      * @param applications The list of job applications to display.
      */
-    public static void listApplications(ArrayList<Add> applications) {
+    public static void listApplications(ArrayList<Application> applications) {
         assert applications != null : "Application list should not be null";
 
         if (applications.isEmpty()) {
@@ -75,7 +72,7 @@ public class JobPilot {
 
         System.out.println("Here are your applications:");
         int index = 0;
-        for (Add application : applications) {
+        for (Application application : applications) {
             if (application == null) {
                 System.out.println((index + 1) + ". [Invalid application data]");
             } else {
@@ -90,7 +87,7 @@ public class JobPilot {
      *
      * @param applications The list of job applications to sort.
      */
-    public static void sortApplications(ArrayList<Add> applications) {
+    public static void sortApplications(ArrayList<Application> applications) {
         assert applications != null : "applications list cannot be null (sort operation failed)";
 
         if (applications.isEmpty()) {
@@ -115,7 +112,7 @@ public class JobPilot {
      * @param applications The list containing job applications.
      * @param input        The raw user command string.
      */
-    public static void updateStatus(ArrayList<Add> applications, String input) {
+    public static void updateStatus(ArrayList<Application> applications, String input) {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("status ") : "Input must start with 'status ' prefix";
@@ -144,7 +141,7 @@ public class JobPilot {
             String newStatus = input.substring(setIndex + 4, noteIndex).trim().toUpperCase();
             String note = input.substring(noteIndex + 5).trim();
 
-            Add app = applications.get(listIndex);
+            Application app = applications.get(listIndex);
             assert app != null : "Retrieved application at index " + listIndex + " should not be null";
 
             app.setStatus(newStatus);
@@ -169,7 +166,7 @@ public class JobPilot {
      * @param input        The raw user command string.
      * @throws JobPilotException If there's an error in the command format.
      */
-    public static void tagApplication(ArrayList<Add> applications, String input) throws JobPilotException {
+    public static void tagApplication(ArrayList<Application> applications, String input) throws JobPilotException {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("tag ") : "Input must start with 'tag ' prefix";
@@ -197,7 +194,7 @@ public class JobPilot {
             String tagStr = input.substring(tagStartIndex).trim();
             IndustryTag tag = new IndustryTag(tagStr);
 
-            Add app = applications.get(listIndex);
+            Application app = applications.get(listIndex);
             if (isAdd) {
                 app.addIndustryTag(tag);
                 LOGGER.log(Level.INFO, "Added tag " + tag + " to application at index " + listIndex);
@@ -222,7 +219,7 @@ public class JobPilot {
      * @param applications The list of job applications to search.
      * @param input        The raw user command string.
      */
-    public static void searchByCompany(ArrayList<Add> applications, String input) {
+    public static void searchByCompany(ArrayList<Application> applications, String input) {
         assert applications != null : "Applications list should not be null";
         assert input != null : "Input command string should not be null";
         assert input.startsWith("search ") : "Input must start with 'search ' prefix";
@@ -242,8 +239,8 @@ public class JobPilot {
                 return;
             }
 
-            ArrayList<Add> results = new ArrayList<>();
-            for (Add application : applications) {
+            ArrayList<Application> results = new ArrayList<>();
+            for (Application application : applications) {
                 assert application != null : "Application in list should not be null";
                 String company = application.getCompany();
                 assert company != null : "Company name should not be null";
@@ -293,7 +290,7 @@ public class JobPilot {
         System.out.println("Type 'help' to see all available commands!");
 
         Scanner in = new Scanner(System.in);
-        ArrayList<Add> applications = new ArrayList<>();
+        ArrayList<Application> applications = new ArrayList<>();
 
         while (true) {
             String input = in.nextLine().trim();
@@ -329,6 +326,12 @@ public class JobPilot {
                 } catch (JobPilotException e) {
                     System.out.println(e.getMessage());
                 }
+            } else if (input.startsWith("edit")) {
+                try {
+                    Editor.editApplication(input, applications);
+                } catch (JobPilotException e) {
+                    System.out.println(e.getMessage());
+                }
             } else {
                 System.out.println("Unknown command. Use 'help' to see all available commands !");
             }
@@ -343,9 +346,9 @@ public class JobPilot {
      * @param applications The list storing all job applications.
      * @throws JobPilotException If the index provided is invalid.
      */
-    private static void deleteApplication(String input, ArrayList<Add> applications) throws JobPilotException {
+    private static void deleteApplication(String input, ArrayList<Application> applications) throws JobPilotException {
         try {
-            Delete.deleteApplication(input, applications);
+            Deleter.deleteApplication(input, applications);
         } catch (NumberFormatException e) {
             throw new JobPilotException("Invalid format! Use: delete INDEX");
         }
