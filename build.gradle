@@ -19,7 +19,7 @@ java {
 }
 
 application {
-    mainClass = 'ui.JobPilot'
+    mainClass = 'app.JobPilot'
 }
 
 test {
