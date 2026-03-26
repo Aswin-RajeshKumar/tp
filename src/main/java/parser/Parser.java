@@ -49,6 +49,12 @@ public class Parser {
             } catch (JobPilotException e) {
                 return new ParsedCommand(CommandType.ERROR, e.getMessage());
             }
+        } else if (trimmed.startsWith("filter")) {
+            try {
+                return FilterParser.parse(trimmed);
+            } catch (JobPilotException e) {
+                return new ParsedCommand(CommandType.ERROR, e.getMessage());
+            }
         } else if (trimmed.startsWith("tag")) {
             try {
                 return TaggerParser.parse(trimmed);

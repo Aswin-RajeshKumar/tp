@@ -19,6 +19,7 @@ public class JobPilot {
     private static final Logger LOGGER = Logger.getLogger(JobPilot.class.getName());
 
     public static void main(String[] args) {
+        // V2.0 Requirement: Assertions & Logging control
         LOGGER.setLevel(Level.OFF);
 
         String logo = """
@@ -36,127 +37,126 @@ public class JobPilot {
         Scanner in = new Scanner(System.in);
         ArrayList<Application> applications = new ArrayList<>();
 
+        // Initialize the UI class to replace System.out.println loops
+        Ui ui = new Ui();
+
         while (true) {
             String input = in.nextLine().trim();
-
             ParsedCommand cmd = Parser.parse(input);
 
             switch (cmd.type) {
-                case BYE:
-                    System.out.println("Bye! You added " + applications.size() + " application(s).");
-                    in.close();
-                    return;
+            case BYE:
+                ui.showMessage("Bye! You added " + applications.size() + " application(s).");
+                in.close();
+                return;
 
-                case HELP:
-                    Helper.showHelpMessage();
-                    break;
+            case HELP:
+                Helper.showHelpMessage();
+                break;
 
-                case ADD:
-                    try {
-                        Application newApp = new Application(cmd.company, cmd.position, cmd.date);
-                        applications.add(newApp);
-                        System.out.println("Added: " + newApp);
-                    } catch (DateTimeParseException e) {
-                        System.out.println("Invalid date! Please use YYYY-MM-DD (e.g., 2024-09-12)");
+            case ADD:
+                try {
+                    Application newApp = new Application(cmd.company, cmd.position, cmd.date);
+                    applications.add(newApp);
+                    ui.showMessage("Added: " + newApp);
+                } catch (DateTimeParseException e) {
+                    ui.showError("Invalid date! Please use YYYY-MM-DD (e.g., 2024-09-12)");
+                }
+                break;
+
+            case LIST:
+                // Using the new UI method for consistency
+                ui.showApplicationList(applications);
+                break;
+
+            case DELETE:
+                try {
+                    // Updated to use the index directly if your Deleter supports it
+                    Application removed = Deleter.deleteApplication("delete " + (cmd.index + 1), applications);
+                    ui.showMessage("Deleted application:\n" + removed);
+                    ui.showMessage("You have " + applications.size() + " application(s) left.");
+                } catch (JobPilotException e) {
+                    ui.showError(e.getMessage());
+                }
+                break;
+
+            case EDIT:
+                try {
+                    Editor.editApplication(cmd.index, applications,
+                            cmd.newCompany, cmd.newPosition, cmd.newDate, cmd.newStatus);
+                    ui.showMessage("Application edited successfully!");
+                } catch (JobPilotException e) {
+                    ui.showError(e.getMessage());
+                }
+                break;
+
+            case SORT:
+                Collections.sort(applications);
+                ui.showMessage("Sorted by submission date!");
+                ui.showApplicationList(applications);
+                break;
+
+            case FILTER: // <--- INTEGRATED FILTER LOGIC
+                // Ensure cmd.searchTerm contains the value from your FilterParser
+                Filterer.filterByStatus(applications, cmd.searchTerm, ui);
+                break;
+
+            case SEARCH:
+                // Keeping search by company logic, but using UI for output
+                ArrayList<Application> searchResults = new ArrayList<>();
+                for (Application app : applications) {
+                    if (app.getCompany().toLowerCase().contains(cmd.searchTerm.toLowerCase())) {
+                        searchResults.add(app);
                     }
-                    break;
+                }
+                if (searchResults.isEmpty()) {
+                    ui.showError("No applications found for company: " + cmd.searchTerm);
+                } else {
+                    ui.showMessage("Found " + searchResults.size() + " matches:");
+                    ui.showApplicationList(searchResults);
+                }
+                break;
 
-                case LIST:
-                    if (applications.isEmpty()) {
-                        System.out.println("There is no application yet.");
-                    } else {
-                        System.out.println("Here are your applications:");
-                        for (int i = 0; i < applications.size(); i++) {
-                            System.out.println((i + 1) + ". " + applications.get(i));
-                        }
-                    }
-                    break;
-
-                case DELETE:
-                    try {
-                        String deleteCommand = "delete " + (cmd.index + 1);
-                        Application removed = Deleter.deleteApplication(deleteCommand, applications);
-                        System.out.println("Deleted application:");
-                        System.out.println(removed);
-                        System.out.println("You have " + applications.size() + " application(s) left.");
-                    } catch (JobPilotException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-
-                case EDIT:
-                    try {
-                        Editor.editApplication(cmd.index, applications,
-                                cmd.newCompany, cmd.newPosition, cmd.newDate, cmd.newStatus);
-                    } catch (JobPilotException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-
-                case SORT:
-                    Collections.sort(applications);
-                    System.out.println("Sorted by submission date!");
-                    if (applications.isEmpty()) {
-                        System.out.println("There is no application yet.");
-                    } else {
-                        System.out.println("Here are your applications:");
-                        for (int i = 0; i < applications.size(); i++) {
-                            System.out.println((i + 1) + ". " + applications.get(i));
-                        }
-                    }
-                    break;
-
-                case SEARCH:
-                    ArrayList<Application> results = new ArrayList<>();
-                    for (Application app : applications) {
-                        if (app.getCompany().toLowerCase().contains(cmd.searchTerm.toLowerCase())) {
-                            results.add(app);
-                        }
-                    }
-                    if (results.isEmpty()) {
-                        System.out.println("No applications found for company: " + cmd.searchTerm);
-                    } else {
-                        System.out.println("Found " + results.size() + " application(s) matching '" + cmd.searchTerm + "':");
-                        for (int i = 0; i < results.size(); i++) {
-                            System.out.println((i + 1) + ". " + results.get(i));
-                        }
-                    }
-                    break;
-
-                case STATUS:
+            case STATUS:
+                try {
                     if (cmd.index < 0 || cmd.index >= applications.size()) {
-                        System.out.println("Invalid index! Application not found.");
-                        break;
+                        throw new JobPilotException("Invalid index! Application not found.");
                     }
-                    Application app = applications.get(cmd.index);
-                    app.setStatus(cmd.statusValue);
-                    app.setNotes(cmd.note);
-                    System.out.println("Updated Status: " + app);
-                    break;
+                    Application appToUpdate = applications.get(cmd.index);
+                    appToUpdate.setStatus(cmd.statusValue);
+                    appToUpdate.setNotes(cmd.note);
+                    ui.showMessage("Updated Status: " + appToUpdate);
+                } catch (JobPilotException e) {
+                    ui.showError(e.getMessage());
+                }
+                break;
 
-                case TAG:
+            case TAG:
+                try {
                     if (cmd.index < 0 || cmd.index >= applications.size()) {
-                        System.out.println("Invalid index! Application not found.");
-                        break;
+                        throw new JobPilotException("Invalid index! Application not found.");
                     }
                     Application target = applications.get(cmd.index);
                     if (cmd.isAddTag) {
                         target.addIndustryTag(cmd.tag);
-                        System.out.println("Added tag: " + cmd.tag + " -> " + target);
+                        ui.showMessage("Added tag: " + cmd.tag);
                     } else {
                         target.removeIndustryTag(cmd.tag);
-                        System.out.println("Removed tag: " + cmd.tag + " -> " + target);
+                        ui.showMessage("Removed tag: " + cmd.tag);
                     }
-                    break;
+                } catch (JobPilotException e) {
+                    ui.showError(e.getMessage());
+                }
+                break;
 
-                case ERROR:
-                    System.out.println(cmd.errorMessage);
-                    break;
+            case ERROR:
+                ui.showError(cmd.errorMessage);
+                break;
 
-                case UNKNOWN:
-                default:
-                    System.out.println("Unknown command. Use 'help' to see all available commands!");
-                    break;
+            case UNKNOWN:
+            default:
+                ui.showError("Unknown command. Use 'help' to see all available commands!");
+                break;
             }
         }
     }

@@ -23,13 +23,13 @@ edit 3 s/Interview  (Update status only)
 **Implementation Details**
 
 The Edit application feature is implemented through a Edit class:
-1.	Extract index from command
-2.	Validate index (1 ≤ index ≤ list size)
-3.	Retrieve target Add object
-4.	Parse remaining command for c/, p/, d/, s/ prefixes
-5.	For each field: call corresponding setter on target
-6.	Validate date format before setting
-7.	Display updated application
+1.  Extract index from command
+2.  Validate index (1 ≤ index ≤ list size)
+3.  Retrieve target Add object
+4.  Parse remaining command for c/, p/, d/, s/ prefixes
+5.  For each field: call corresponding setter on target
+6.  Validate date format before setting
+7.  Display updated application
 
 **Error Handling**
 
@@ -40,8 +40,7 @@ The Edit application feature is implemented through a Edit class:
 | No Fields | User provides index but no fields to update | "No valid fields to update! Use: c/, p/, d/, s/" |
 | Invalid Date Format | Date not in `YYYY-MM-DD` format | "Invalid date! Use YYYY-MM-DD (e.g., 2024-09-12)" |
 
-**Sequence Diagram** 
-![Sequence](diagrams/edit/sequence.png)
+**Sequence Diagram** ![Sequence](diagrams/edit/sequence.png)
 
 **Design Rationale**
 
@@ -90,8 +89,8 @@ The following sequence diagram shows the flow of deleting an application:
 **Aspect: Command delegation:**
 
 * **Current Implementation:** The static `Delete` class handles both the domain logic (removing the `Add` object from the `ArrayList`) and the UI logic (printing the success message via `System.out`).
-    * *Pros:* Splits the workload of `JobPilot` by extracting the specific deletion into its own class.
-    * *Cons:* Increased coupling. 
+  * *Pros:* Splits the workload of `JobPilot` by extracting the specific deletion into its own class.
+  * *Cons:* Increased coupling.
 * **Alternative:** Have `Delete.deleteApplication` return the deleted `Add` object.
   * *Pros:* Separates concerns, making the deletion logic purely functional, highly cohesive, and significantly easier to test.
   * *Cons:* Requires refactoring the current architecture, which is difficult due to the given time constraints.
@@ -121,13 +120,12 @@ Given below is an example usage scenario demonstrating how the search mechanism 
 If the search term is empty, an error message is shown. If the application list is empty, the system informs the user that there are no applications to search.
 
 **Step 4.** The method iterates through all applications and performs a case-insensitive partial match:
-```
 for (Add application : applications) {
-    if (application.getCompany().toLowerCase().contains(searchTerm.toLowerCase())) {
-        results.add(application);
-    }
+if (application.getCompany().toLowerCase().contains(searchTerm.toLowerCase())) {
+results.add(application);
 }
-```
+}
+
 
 
 **Step 5.** The results are displayed to the user. If no matches are found, the system prints a corresponding message. Otherwise, all matching applications are listed.
@@ -136,7 +134,6 @@ for (Add application : applications) {
 
 The following sequence diagram shows the flow of searching by company:
 
-```
 @startuml
 actor User
 participant JobPilot
@@ -149,14 +146,14 @@ JobPilot -> JobPilot : searchByCompany(applications, input)
 JobPilot -> JobPilot : extract searchTerm
 
 loop for each application
-    JobPilot -> Add : getCompany()
-    Add --> JobPilot : company name
-    JobPilot -> JobPilot : compare (contains)
+JobPilot -> Add : getCompany()
+Add --> JobPilot : company name
+JobPilot -> JobPilot : compare (contains)
 end
 
 JobPilot -> User : display results
 @enduml
-```
+
 
 **Sequence Diagram** (command: search google):
 
@@ -200,20 +197,20 @@ JobPilot -> User : display results
 **Aspect: Search logic placement**
 
 * **Current Implementation:** The search logic is implemented directly inside the `JobPilot` class.
-    * *Pros:* Simple and straightforward, easy to integrate with the main command loop.
-    * *Cons:* Mixes UI logic and business logic, making the method harder to test and reuse.
+  * *Pros:* Simple and straightforward, easy to integrate with the main command loop.
+  * *Cons:* Mixes UI logic and business logic, making the method harder to test and reuse.
 
 ---
 
 **Aspect: Matching strategy**
 
 * **Current Implementation:** Uses case-insensitive partial matching via `toLowerCase().contains()`.
-    * *Pros:* Flexible and user-friendly, supports partial input (e.g., "goo" matches "Google").
-    * *Cons:* Less efficient for large datasets and limited to simple substring matching.
+  * *Pros:* Flexible and user-friendly, supports partial input (e.g., "goo" matches "Google").
+  * *Cons:* Less efficient for large datasets and limited to simple substring matching.
 
 * **Alternative:** Use exact matching with `equalsIgnoreCase()`.
-    * *Pros:* More precise and slightly more efficient.
-    * *Cons:* Too strict for user input, reduces usability.
+  * *Pros:* More precise and slightly more efficient.
+  * *Cons:* Too strict for user input, reduces usability.
 
 ---
 
@@ -342,7 +339,47 @@ Given below is an example usage scenario:
 | Deduplication | Prevents redundant data |
 | `add/` and `remove/` syntax | Matches existing command patterns |
 
----
+### Filter by Status Feature
+
+#### Implementation Details
+The **Filter by Status** mechanism allows users to retrieve a subset of applications matching a specific status (e.g., "OFFER"). This is implemented via a dedicated `Filterer` utility class and a `FilterParser` sub-parser, following the **Separation of Concerns** principle used in the `Delete` and `Edit` features.
+
+The operations are handled via the following methods:
+* `FilterParser#parse(String)` — Extracts the status query from the raw input (e.g., extracts "OFFER" from `filter status/OFFER`).
+* `Filterer#filterByStatus(ArrayList<Application>, String, Ui)` — Iterates through the list, performs the logical match, and delegates the display to the `Ui` class.
+
+**Execution Scenario**
+
+**Step 1.** The user executes `filter status/OFFER`. The `Scanner` in `JobPilot.main()` reads the input string.
+
+**Step 2.** The `Parser` identifies the `filter` keyword and routes execution to `FilterParser.parse("filter status/OFFER")`.
+
+**Step 3.** `FilterParser` validates the `status/` prefix, extracts the string `"OFFER"`, and returns a `ParsedCommand` object with `type = FILTER` and `searchTerm = "OFFER"`.
+
+**Step 4.** The `switch` block in `JobPilot.main()` catches the `FILTER` case and calls `Filterer.filterByStatus(applications, cmd.searchTerm, ui)`.
+
+**Step 5.** The `Filterer` iterates through the `ArrayList<Application>`. For each application, it performs a case-insensitive check:
+`app.getStatus().toUpperCase().contains(query.toUpperCase())`.
+
+**Step 6.** Matching applications are added to a temporary results list, which is then passed to `ui.showApplicationList(results)` for final display.
+
+![Filter Sequence Diagram](diagrams/filter/sequence_diagram.png)
+
+#### Design Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| **Separate `Filterer` Class** | Maintains the Single Responsibility Principle and simplifies unit testing. |
+| **Case-Insensitive `contains()`** | Provides a "search-like" experience, allowing partial matches (e.g., "OFF" matches "OFFER"). |
+| **Logging (v2.0 requirement)** | Uses `java.util.logging` to track filter queries for developer diagnostics. |
+
+#### Error Handling
+
+| Error Scenario | Condition | User Response |
+|----------------|-----------|---------------|
+| Missing Arguments | User enters `filter` alone | "Filter command is missing arguments! Use: filter status/STATUS" |
+| Missing Prefix | User enters `filter PENDING` | "Invalid filter format! Expected: filter status/STATUS" |
+| Empty Value | User enters `filter status/` | "Status value cannot be empty!" |
 
 ### Separate Notes from Status Feature
 
@@ -398,30 +435,33 @@ Given below is an example usage scenario:
 ## Product scope
 ### Target user profile
 
-{Describe the target user profile}
+University students or job seekers looking for an efficient way to track internship and full-time job applications using a CLI interface.
 
 ### Value proposition
 
-{Describe the value proposition: what problem does it solve?}
+Automates the tedious process of tracking application deadlines, company details, and recruitment statuses in a single, organized platform.
 
 ## User Stories
 
 |Version| As a ... | I want to ... | So that I can ...|
 |--------|----------|---------------|------------------|
 |v1.0|new user|see usage instructions|refer to them when I forget how to use the application|
+|v2.0|user|filter applications by status|quickly see only the companies where I have received offers or interviews|
 |v2.0|user|find a to-do item by name|locate a to-do without having to go through the entire list|
 
 ## Non-Functional Requirements
 
-{Give non-functional requirements}
+1. The application should work on any OS (Windows, Linux, macOS) that has Java 11 or higher installed.
+2. The JAR file should be small enough to be easily portable.
+3. User data should be saved locally in a readable text format.
 
 ## Glossary
 
-* *glossary item* - Definition
+* **CLI** - Command Line Interface.
+* **Filter** - A function to narrow down the application list based on specific criteria.
+* **Tag** - A label assigned to an application for categorization.
 
 ## Instructions for manual testing
-
-{Give instructions on how to do a manual product testing e.g., how to load sample data to be used for testing}
 
 ### Edit Feature Testing
 
@@ -446,3 +486,13 @@ Given below is an example usage scenario:
 | Case insensitive | `search GOOGLE` | Matches "Google" successfully |
 | Empty search term | `search ` | Error: "Please provide a company name to search" |
 | Empty list | `search Google` (no applications) | "No applications to search!" |
+
+### Filter by Status Feature Testing
+
+| Test | Command | Expected |
+|------|---------|----------|
+| Exact match | `filter status/OFFER` | Shows only applications with status "OFFER" |
+| Case insensitive | `filter status/offer` | Matches "OFFER" successfully |
+| Partial match | `filter status/PEND` | Matches "PENDING" successfully |
+| No match | `filter status/REJECTED` | Prints "No applications found for status: REJECTED" |
+| Empty list | `filter status/OFFER` | Prints "There is no application yet." |

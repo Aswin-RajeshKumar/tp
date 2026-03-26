@@ -7,7 +7,7 @@ import task.IndustryTag;
  */
 public class ParsedCommand {
     public final CommandType type;
-    public final String errorMessage;  // NEW FIELD
+    public final String errorMessage;
 
     // Add command fields
     public final String company;
@@ -35,6 +35,38 @@ public class ParsedCommand {
     public final boolean isAddTag;
 
     // ========== CONSTRUCTORS ==========
+
+    /**
+     * General Constructor for commands requiring a Type and a single String argument.
+     * This resolves the conflict between FILTER and ERROR constructors.
+     */
+    public ParsedCommand(CommandType type, String stringValue) {
+        this.type = type;
+        this.index = -1;
+        this.company = null;
+        this.position = null;
+        this.date = null;
+        this.newCompany = null;
+        this.newPosition = null;
+        this.newDate = null;
+        this.newStatus = null;
+        this.statusValue = null;
+        this.note = null;
+        this.tag = null;
+        this.isAddTag = false;
+
+        // Route the string value based on the CommandType
+        if (type == CommandType.FILTER || type == CommandType.SEARCH) {
+            this.searchTerm = stringValue;
+            this.errorMessage = null;
+        } else if (type == CommandType.ERROR) {
+            this.errorMessage = stringValue;
+            this.searchTerm = null;
+        } else {
+            this.searchTerm = stringValue;
+            this.errorMessage = null;
+        }
+    }
 
     // Constructor for ADD
     public ParsedCommand(String company, String position, String date) {
@@ -93,7 +125,7 @@ public class ParsedCommand {
         this.isAddTag = false;
     }
 
-    // Constructor for SEARCH
+    // Constructor for SEARCH (Legacy support - can also use the general constructor)
     public ParsedCommand(String searchTerm) {
         this.type = CommandType.SEARCH;
         this.searchTerm = searchTerm;
@@ -154,25 +186,6 @@ public class ParsedCommand {
     public ParsedCommand(CommandType type) {
         this.type = type;
         this.errorMessage = null;
-        this.index = -1;
-        this.company = null;
-        this.position = null;
-        this.date = null;
-        this.newCompany = null;
-        this.newPosition = null;
-        this.newDate = null;
-        this.newStatus = null;
-        this.searchTerm = null;
-        this.statusValue = null;
-        this.note = null;
-        this.tag = null;
-        this.isAddTag = false;
-    }
-
-    // NEW: Constructor for ERROR
-    public ParsedCommand(CommandType type, String errorMessage) {
-        this.type = type;
-        this.errorMessage = errorMessage;
         this.index = -1;
         this.company = null;
         this.position = null;
