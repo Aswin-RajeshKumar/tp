@@ -433,27 +433,38 @@ Given below is an example usage scenario:
 
 
 ## Product scope
-### Target user profile
+### 
+  profile
 
-University students or job seekers looking for an efficient way to track internship and full-time job applications using a CLI interface.
+
+  students or job seekers looking for an efficient way to track internship and full-time job applications using a CLI interface.
 
 ### Value proposition
-
-Automates the tedious process of tracking application deadlines, company details, and recruitment statuses in a single, organized platform.
+In the current job market, applying to many roles has become the norm. As such, JobPilot acts a 
+tracker to allow users to get a bird's eye view of all their applications and manage them effectively.
 
 ## User Stories
 
-|Version| As a ... | I want to ... | So that I can ...|
-|--------|----------|---------------|------------------|
-|v1.0|new user|see usage instructions|refer to them when I forget how to use the application|
-|v2.0|user|filter applications by status|quickly see only the companies where I have received offers or interviews|
-|v2.0|user|find a to-do item by name|locate a to-do without having to go through the entire list|
+| Version | As a ... | I want to ...                      | So that I can ...                                           |
+|---------|----------|------------------------------------|-------------------------------------------------------------|
+| v1.0    | user     | delete applications                | manage my application list effectively.                     |
+| v2.0    | user     | store my applications persistently | come back to it at different points in time.                |
+| v2.0    | user     | find a to-do item by name          | locate a to-do without having to go through the entire list |
 
 ## Non-Functional Requirements
 
-1. The application should work on any OS (Windows, Linux, macOS) that has Java 11 or higher installed.
-2. The JAR file should be small enough to be easily portable.
-3. User data should be saved locally in a readable text format.
+### 1. Performance
+- The application shall respond to any command (add, edit, delete, search, sort, tag, status) within **1 second** for up to **500 job applications**.
+- Searching, sorting, and filtering operations shall execute in **O(n)** time complexity or better, where n is the number of applications.
+
+### 2. Usability
+- Command syntax shall remain consistent with clear prefixes (`c/`, `p/`, `d/`, `s/`, `add/`, `remove/`, `note/`) to minimize user errors.
+- Error messages shall be **descriptive and actionable**, guiding users to correct input mistakes.
+- Commands shall support **partial input** where applicable (e.g., partial company names for search).
+
+### 3. Accessibility
+- Command-line outputs shall be **readable with standard font sizes**, use clear formatting (tables, line breaks), and avoid color dependence.
+- Messages shall be concise, avoiding technical jargon when addressing end users.
 
 ## Glossary
 
@@ -462,6 +473,15 @@ Automates the tedious process of tracking application deadlines, company details
 * **Tag** - A label assigned to an application for categorization.
 
 ## Instructions for manual testing
+
+{Give instructions on how to do a manual product testing e.g., how to load sample data to be used for testing}
+
+## Initial Launch
+1. Use the provided `JobPilot.jar`.
+2. Place the jar in an empty folder.
+3. **Double-click the jar file**  
+   **Expected:** JobPilot launches. The CLI prompt appears showing either an empty list or existing applications if data file exists.
+
 
 ### Edit Feature Testing
 
@@ -496,3 +516,58 @@ Automates the tedious process of tracking application deadlines, company details
 | Partial match | `filter status/PEND` | Matches "PENDING" successfully |
 | No match | `filter status/REJECTED` | Prints "No applications found for status: REJECTED" |
 | Empty list | `filter status/OFFER` | Prints "There is no application yet." |
+### Delete Feature Testing
+
+
+#### Test case: `delete 1`
+
+- **Action:** Enter `delete 1`
+- **Expected:**
+  - First application removed from list.
+  - `Ui.showApplicationDeleted()` shows the deleted application and remaining count.
+  - `Storage.saveToFile()` updates `JobPilotData.txt`.
+
+#### Test case: `delete 0`
+
+- **Action:** Enter `delete 0`
+- **Expected:**
+  - Error thrown.
+  - No deletion occurs.
+  - Storage remains unchanged.
+
+#### Test case: `delete` (no index)
+
+- **Action:** Enter `delete`
+- **Expected:**
+  - Error thrown.
+  - No deletion.
+  - Data file remains unchanged.
+
+#### Test case: `delete x` (non-numeric index)
+
+- **Action:** Enter `delete abc`
+- **Expected:**
+  - Error thrown.
+  - No deletion.
+  - Storage remains consistent.
+
+#### Test case: `delete N+1` (index out of range)
+
+- **Action:** Enter index greater than list size
+- **Expected:**
+  - Error thrown.
+  - No deletion occurs.
+  - Data file unchanged.
+
+### Storage Feature Testing
+
+1. Perform `add`, `edit`, or `delete` command.  
+   **Expected:**
+  - `Storage.saveToFile()` is called.
+  - `JobPilotData.txt` updated with the latest application list.
+  - On next launch, the list reflects all modifications.
+  
+  
+
+
+  
