@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant Ui
+participant CommandRunner
+participant TagParser
+participant Application
+participant IndustryTag
+
+User -> Ui : "tag 1 add/TECH"
+Ui -> CommandRunner : run(command)
+CommandRunner -> TagParser : parse("tag 1 add/TECH")
+TagParser --> CommandRunner : ParsedCommand(index=1, action=add, tag="TECH")
+CommandRunner -> Application : getApplication(0)
+Application --> CommandRunner : app
+CommandRunner -> IndustryTag : new IndustryTag("TECH")
+IndustryTag --> CommandRunner : tag (normalized to "TECH")
+CommandRunner -> Application : addIndustryTag(tag)
+Application -> Application : industryTags.add(tag)
+Application --> CommandRunner : (updated)
+CommandRunner -> Ui : showTagAdded(app)
+Ui --> User : "Added tag: TECH -> Google | SE manager | ..."
+@enduml

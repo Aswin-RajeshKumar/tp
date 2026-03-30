@@ -1,0 +1,84 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class CommandRunner {
+    - applications: ArrayList<Application>
+    - ui: Ui
+    + CommandRunner(applications: ArrayList<Application>)
+    + run(cmd: ParsedCommand): boolean
+    - validateIndex(index: int): boolean
+}
+
+class ParsedCommand {
+    - type: CommandType
+    - index: int
+    - searchTerm: String
+    - status: String
+    - notes: String
+    - tag: String
+    - action: String
+    + getType(): CommandType
+    + getIndex(): int
+    + getSearchTerm(): String
+    + getStatus(): String
+    + getNotes(): String
+    + getTag(): String
+    + getAction(): String
+}
+
+enum CommandType {
+    ADD
+    DELETE
+    EDIT
+    LIST
+    SORT
+    SEARCH
+    FILTER
+    STATUS
+    TAG
+    HELP
+    BYE
+    ERROR
+}
+
+class Deleter {
+    + deleteApplication(list: ArrayList<Application>, index: int): Application
+}
+
+class Editor {
+    + editApplication(app: Application, fields: Map<String, String>): void
+}
+
+class Filterer {
+    + filterByStatus(list: ArrayList<Application>, status: String): ArrayList<Application>
+}
+
+class Application {
+    - company: String
+    - position: String
+    - date: LocalDate
+    - status: String
+    - notes: String
+    - industryTags: Set<IndustryTag>
+    + setStatus(status: String): void
+    + setNotes(notes: String): void
+    + addIndustryTag(tag: IndustryTag): void
+    + removeIndustryTag(tag: IndustryTag): void
+}
+
+class Ui {
+    + showApplicationList(list: ArrayList<Application>): void
+    + showMessage(message: String): void
+    + showError(message: String): void
+    + showHelp(): void
+}
+
+CommandRunner --> ParsedCommand : receives
+CommandRunner --> CommandType : uses
+CommandRunner --> Deleter : delegates delete
+CommandRunner --> Editor : delegates edit
+CommandRunner --> Filterer : delegates filter
+CommandRunner --> Application : updates
+CommandRunner --> Ui : displays
+
+@enduml

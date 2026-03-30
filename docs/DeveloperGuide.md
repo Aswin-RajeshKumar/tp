@@ -47,6 +47,57 @@ The `Storage` component,
 * parses the text file, actively invalidating corrupted or invalid lines during the loading process to ensure the application does not crash upon startup.
 * depends on some classes in the `task` component, because the `Storage` component's primary job is to serialize and deserialize `Application` and `IndustryTag` objects.
 
+### CommandRunner Component
+
+The **CommandRunner** component serves as the central router for all user commands. It receives a `ParsedCommand` object from the `Parser` and delegates execution to the appropriate handler.
+
+![CommandRunner Class Diagram](diagrams/component-commandrunner/commandrunner-class.png)
+
+The `CommandRunner` component,
+
+* receives a `ParsedCommand` containing command type and relevant parameters (index, search term, status, notes, tag, etc.).
+* maintains the central `ArrayList<Application>` that holds all job applications.
+* validates command parameters (e.g., index bounds) before delegating to specialized handlers.
+* coordinates between the `Ui` and domain logic classes (`Deleter`, `Editor`, `Filterer`, etc.).
+* returns a boolean flag to indicate whether the application should continue running.
+
+The following diagram illustrates how the `CommandRunner` processes different command types:
+
+![CommandRunner Flow](diagrams/component-commandrunner/commandrunner-flow.png)
+
+**Key Responsibilities:**
+
+| Responsibility | Description |
+|----------------|-------------|
+| **Command Routing** | Uses a switch statement to route `ParsedCommand` to the appropriate handler based on `CommandType` |
+| **Index Validation** | Validates that indexes are within bounds before passing to handlers |
+| **State Management** | Maintains the single source of truth for the application list |
+| **Error Handling** | Catches exceptions and delegates error display to `Ui` |
+
+**Command Types Handled:**
+
+| Command Type | Handler | Description |
+|--------------|---------|-------------|
+| `ADD` | `Application` constructor | Creates new application and adds to list |
+| `DELETE` | `Deleter` | Removes application from list |
+| `EDIT` | `Editor` | Updates fields of existing application |
+| `LIST` | `Ui.showApplicationList()` | Displays all applications |
+| `SORT` | `Collections.sort()` | Sorts applications by date |
+| `SEARCH` | `JobPilot.searchByCompany()` | Filters applications by company name |
+| `FILTER` | `Filterer` | Filters applications by status |
+| `STATUS` | `Application.setStatus()` / `setNotes()` | Updates status and/or notes |
+| `TAG` | `Application.addIndustryTag()` / `removeIndustryTag()` | Adds or removes industry tags |
+| `HELP` | `Ui.showHelp()` | Displays available commands |
+| `BYE` | None | Exits the application |
+
+**Design Rationale:**
+
+| Decision | Rationale |
+|----------|-----------|
+| Centralized command routing | All commands flow through a single component, making the execution flow easy to trace |
+| Validation before delegation | Ensures invalid commands never reach domain logic, improving robustness |
+| Return boolean flag | Simple mechanism to control main loop continuation without exceptions |
+| Switch statement over mapping | Simple, readable, and sufficient for the number of command types |
 ## Implementation
 
 ### Edit Application Feature
@@ -119,9 +170,9 @@ The following sequence diagram shows the flow of deleting an application:
 
 The **Search by Company** feature allows users to retrieve job applications by matching a company name using a **case-insensitive partial search**. This feature is implemented directly within the `JobPilot` class through the method:
 
-* `JobPilot#searchByCompany(ArrayList<Add>, String)`
+* `JobPilot#searchByCompany(ArrayList<Application>, String)`
 
-The application's data is stored in a central `ArrayList<Add>` named `applications`, where each `Add` object represents a job application.
+The application's data is stored in a central `ArrayList<Application>` named `applications`, where each `Application` object represents a job application.
 
 The search operation works by iterating through the list and checking whether each application's company name contains the user-provided search keyword.
 
@@ -138,7 +189,7 @@ Given below is an example usage scenario demonstrating how the search mechanism 
 If the search term is empty, an error message is shown. If the application list is empty, the system informs the user that there are no applications to search.
 
 **Step 4.** The method iterates through all applications and performs a case-insensitive partial match:
-for (Add application : applications) {
+for (Application application : applications) {
 if (application.getCompany().toLowerCase().contains(searchTerm.toLowerCase())) {
 results.add(application);
 }
@@ -230,9 +281,9 @@ Example Usage:
 
 The sorting logic is implemented in the method:
 
-- `JobPilot#sortApplications(ArrayList<Add>)`
+- `JobPilot#sortApplications(ArrayList<Application>)`
 
-Applications are stored in a central `ArrayList<Add>`. The list is sorted using a date comparator: Collections.sort(applications, Comparator.comparing(Add::getDate));
+Applications are stored in a central `ArrayList<Application>`. The list is sorted using a date comparator: Collections.sort(applications, Comparator.comparing(Application::getDate));
 
 
 Given below is an example usage scenario:
@@ -282,60 +333,68 @@ Given below is an example usage scenario:
 
 #### Implementation Details
 
-The Tag feature allows users to add or remove industry tags for job applications. Tags are automatically converted to uppercase and duplicates are prevented. This feature is implemented using a dedicated `IndustryTag` class.
+The Tag feature allows users to add or remove industry tags for job applications. Tags are automatically normalized to uppercase, trimmed of whitespace, and duplicates are automatically prevented. This feature is implemented using a dedicated `IndustryTag` class and integrated with the `Application` model.
 
-**Command Format**: `tag INDEX add/TAG` or `tag INDEX remove/TAG`
+**Command Format**:
+- `tag INDEX add/TAG` — Add a tag to an application
+- `tag INDEX remove/TAG` — Remove a tag from an application
 
-Example Usage:
-- `tag 1 add/TECH`
-- `tag 2 remove/FINANCE`
+**Example Usage**:
+- `tag 1 add/TECH` — Adds tag "TECH" to application at index 1
+- `tag 2 remove/FINANCE` — Removes tag "FINANCE" from application at index 2
 
-The feature is implemented using the following methods:
+The feature is implemented using the following components:
+- `IndustryTag` — Immutable value object representing a normalized tag
+- `Application` — Stores a `Set<IndustryTag>` and provides `addIndustryTag()` and `removeIndustryTag()` methods
+- `CommandRunner` — Routes the command to the appropriate handler
+- `TagParser` — Parses the raw input to extract index, action, and tag content
 
-- `JobPilot#tagApplication(String, ArrayList<Add>)`
-- `IndustryTag#executeTagCommand(ArrayList<Add>, String)`
+Given below is an example usage scenario demonstrating how the Tag mechanism behaves at each step.
 
-Given below is an example usage scenario:
+**Step 1.** The user executes `tag 1 add/TECH`. The command is read by `Ui` and passed to `Parser`.
 
-**Step 1.** The user executes a tag command.
+**Step 2.** `Parser` identifies the `tag` keyword and delegates to `TagParser.parse()`.
 
-**Step 2.** `JobPilot` routes the command to `IndustryTag`.
+**Step 3.** `TagParser` extracts the index `1`, action `add`, and tag content `TECH`. It returns a `ParsedCommand` object with type `TAG`, index, action, and tag.
 
-**Step 3.** The index, action, and tag content are parsed.
+**Step 4.** `CommandRunner` receives the `ParsedCommand` and validates the index is within bounds.
 
-**Step 4.** The target application is retrieved.
+**Step 5.** `CommandRunner` calls `Application.addIndustryTag(new IndustryTag("TECH"))` on the target application.
 
-**Step 5.** The tag is added or removed:
-- Converted to uppercase
-- Duplicate tags prevented
+**Step 6.** The `IndustryTag` constructor normalizes the tag (trim → uppercase), and the tag is added to the `Set<IndustryTag>` (duplicates automatically ignored).
 
-**Step 6.** The updated application is displayed.
+**Step 7.** `Ui.showTagAdded()` displays the updated application with its tags.
 
----
+#### Sequence Diagram
+
+The following sequence diagram illustrates the flow of adding a tag to an application:
+
+![Tag Sequence Diagram](diagrams/tag/sequence.png)
 
 #### Error Handling
 
 | Error Scenario | Condition | User Response |
-|----------------|----------|---------------|
-| Missing index | No index provided | "Please provide an index. Example: tag 1 add/TECH" |
-| Invalid index | Out of bounds | "Invalid application number!" |
-| Empty tag | No tag content | "Tag cannot be empty!" |
-| Remove non-existent tag | Tag not found | "Tag not found on this application!" |
-
----
+|----------------|-----------|---------------|
+| Missing index | User enters `tag add/TECH` without index | "Please provide an index. Example: tag 1 add/TECH" |
+| Invalid index | Index is 0, negative, or exceeds list size | "Invalid application number! You have X application(s)." |
+| Invalid format | Missing `add/` or `remove/` prefix | "Invalid tag format! Use: tag INDEX add/TAG or tag INDEX remove/TAG" |
+| Empty tag | User enters `tag 1 add/` | "Tag cannot be empty!" |
+| Remove non-existent tag | Tag not found on application | "Tag not found on this application!" |
 
 #### Design Rationale
 
 | Decision | Rationale |
 |----------|----------|
-| Separate `IndustryTag` class | Improves modularity and separation of concerns |
-| Uppercase tags | Ensures consistency |
-| Deduplication | Prevents redundant data |
-| `add/` and `remove/` syntax | Matches existing command patterns |
+| Dedicated `IndustryTag` class | Encapsulates tag normalization logic (uppercase, trim) and ensures immutability |
+| Use `Set<IndustryTag>` | Automatically prevents duplicate tags |
+| Tag normalization (uppercase) | Ensures consistency and prevents case-sensitive duplicates |
+| `add/` and `remove/` syntax | Matches existing command patterns (`set/`, `note/`) |
+| Separate `TagParser` | Maintains separation of concerns and simplifies unit testing |
 
 ### Filter by Status Feature
 
 #### Implementation Details
+
 The **Filter by Status** mechanism allows users to retrieve a subset of applications matching a specific status (e.g., "OFFER"). This is implemented via a dedicated `Filterer` utility class and a `FilterParser` sub-parser, following the **Separation of Concerns** principle used in the `Delete` and `Edit` features.
 
 The operations are handled via the following methods:
@@ -357,7 +416,12 @@ The operations are handled via the following methods:
 
 **Step 6.** Matching applications are added to a temporary results list, which is then passed to `ui.showApplicationList(results)` for final display.
 
+#### Sequence Diagram
+
+The following sequence diagram illustrates the flow of filtering applications by status:
+
 ![Filter Sequence Diagram](diagrams/filter/sequence_diagram.png)
+
 
 #### Design Rationale
 
@@ -365,7 +429,7 @@ The operations are handled via the following methods:
 |----------|-----------|
 | **Separate `Filterer` Class** | Maintains the Single Responsibility Principle and simplifies unit testing. |
 | **Case-Insensitive `contains()`** | Provides a "search-like" experience, allowing partial matches (e.g., "OFF" matches "OFFER"). |
-| **Logging (v2.0 requirement)** | Uses `java.util.logging` to track filter queries for developer diagnostics. |
+
 
 #### Error Handling
 
@@ -374,57 +438,63 @@ The operations are handled via the following methods:
 | Missing Arguments | User enters `filter` alone | "Filter command is missing arguments! Use: filter status/STATUS" |
 | Missing Prefix | User enters `filter PENDING` | "Invalid filter format! Expected: filter status/STATUS" |
 | Empty Value | User enters `filter status/` | "Status value cannot be empty!" |
-
 ### Separate Notes from Status Feature
 
 #### Implementation Details
 
-This feature separates the original `status` field into `status` and `notes`, allowing independent updates.
+This feature separates the original `status` field into two independent fields: `status` (application progress) and `notes` (user comments). This allows users to update status and notes independently without overwriting the other.
 
 **Command Format**: `status INDEX set/STATUS note/NOTES`
 
-Example Usage:
-- `status 1 set/OFFER note/Negotiate salary`
-- `status 2 set/INTERVIEW note/Prepare portfolio`
+**Example Usage**:
+- `status 1 set/OFFER note/Negotiate salary` — Update both status and notes
+- `status 2 set/INTERVIEW` — Update status only (notes unchanged)
+- `status 3 note/Follow up next week` — Update notes only (status unchanged)
 
-The feature is implemented in:
+The feature is implemented using the following components:
+- `Application` — Stores `status` and `notes` as separate fields with getter/setter methods
+- `StatusParser` — Parses the raw input to extract index, status value, and notes
+- `CommandRunner` — Routes the command and updates the target application
 
-- `JobPilot#updateStatus(String, ArrayList<Add>)`
+Given below is an example usage scenario demonstrating how the Status mechanism behaves at each step.
 
-Given below is an example usage scenario:
+**Step 1.** The user executes `status 1 set/OFFER note/Negotiate salary`. The command is read by `Ui` and passed to `Parser`.
 
-**Step 1.** The user executes a status command.
+**Step 2.** `Parser` identifies the `status` keyword and delegates to `StatusParser.parse()`.
 
-**Step 2.** Input is parsed to extract index, status, and notes.
+**Step 3.** `StatusParser` extracts the index `1`, status value `OFFER` (after `set/`), and notes `Negotiate salary` (after `note/`). It returns a `ParsedCommand` object with type `STATUS`, index, status, and notes.
 
-**Step 3.** The target application is retrieved.
+**Step 4.** `CommandRunner` validates the index is within bounds and retrieves the target `Application`.
 
-**Step 4.** `setStatus()` and `setNotes()` are called.
+**Step 5.** `CommandRunner` calls `app.setStatus(status)` if status is provided, and `app.setNotes(notes)` if notes are provided.
 
-**Step 5.** The updated application is displayed.
+**Step 6.** `Ui.showStatusUpdated(app)` displays the updated application.
 
----
+#### Sequence Diagram
+
+The following sequence diagram illustrates the flow of updating status and notes:
+
+![Status Sequence Diagram](diagrams/status/sequence.png)
 
 #### Error Handling
 
 | Error Scenario | Condition | User Response |
-|----------------|----------|---------------|
-| Missing index | No index provided | "Please provide an index." |
-| Invalid index | Out of range | "Invalid application number!" |
-| Invalid format | Incorrect syntax | "Invalid status format!" |
-| Empty status | No status given | "Status cannot be empty!" |
-
----
+|----------------|-----------|---------------|
+| Missing index | User enters `status set/OFFER` without index | "Please provide an index. Example: status 1 set/OFFER" |
+| Invalid index | Index out of range | "Invalid application number! You have X application(s)." |
+| Invalid format | Missing `set/` or incorrectly formatted | "Invalid status format! Use: status INDEX set/STATUS note/NOTE" |
+| Empty status | User enters `status 1 set/` | "Status cannot be empty!" |
+| Both fields missing | User enters `status 1` | "No valid fields to update! Use: set/STATUS and/or note/NOTE" |
 
 #### Design Rationale
 
 | Decision | Rationale |
 |----------|----------|
-| Separate status and notes | Improves clarity of data |
-| Dedicated command | Keeps logic focused |
-| `note/` prefix | Supports multi-word notes |
-| Backward compatibility | Existing data remains valid |
-
+| Separate `status` and `notes` fields | Improves data clarity and allows independent updates |
+| Optional `note/` field | Supports updating status without overwriting existing notes |
+| Backward compatibility | Existing applications with combined format are migrated correctly |
+| Dedicated `StatusParser` | Maintains separation of concerns and simplifies testing |
+| `set/` and `note/` prefixes | Consistent with existing command patterns (`c/`, `p/`, `d/`) |
 
 ## Product Scope
 ### Target User Profile

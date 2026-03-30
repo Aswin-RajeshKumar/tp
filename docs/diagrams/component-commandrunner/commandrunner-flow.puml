@@ -1,0 +1,54 @@
+@startuml
+start
+:User enters command;
+:Ui reads input;
+:Parser.parse() creates ParsedCommand;
+
+switch (CommandType?)
+
+case (ADD)
+    :Create new Application;
+    :Add to applications list;
+    :Ui.showApplicationAdded();
+case (DELETE)
+    :Validate index;
+    :Deleter.deleteApplication();
+    :Ui.showApplicationDeleted();
+case (EDIT)
+    :Validate index;
+    :Editor.editApplication();
+    :Ui.showApplicationUpdated();
+case (LIST)
+    :Ui.showApplicationList();
+case (SORT)
+    :Collections.sort(applications);
+    :Ui.showApplicationList();
+case (SEARCH)
+    :Iterate applications;
+    :Filter by company name;
+    :Ui.showSearchResults();
+case (FILTER)
+    :Filterer.filterByStatus();
+    :Ui.showApplicationList();
+case (STATUS)
+    :Validate index;
+    :Application.setStatus();
+    :Application.setNotes();
+    :Ui.showStatusUpdated();
+case (TAG)
+    :Validate index;
+    :Application.addIndustryTag();
+    :Application.removeIndustryTag();
+    :Ui.showTagUpdated();
+case (HELP)
+    :Ui.showHelp();
+case (BYE)
+    :Ui.showExitMessage();
+    :return false;
+case (ERROR)
+    :Ui.showError();
+endswitch
+
+:return true;
+stop
+@enduml

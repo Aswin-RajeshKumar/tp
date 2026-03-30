@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant Ui
+participant CommandRunner
+participant StatusParser
+participant Application
+
+User -> Ui : "status 1 set/OFFER note/Negotiate salary"
+Ui -> CommandRunner : run(command)
+CommandRunner -> StatusParser : parse("status 1 set/OFFER note/Negotiate salary")
+StatusParser --> CommandRunner : ParsedCommand(index=1, status="OFFER", notes="Negotiate salary")
+CommandRunner -> Application : getApplication(0)
+Application --> CommandRunner : app
+CommandRunner -> Application : setStatus("OFFER")
+Application --> CommandRunner : (status updated)
+CommandRunner -> Application : setNotes("Negotiate salary")
+Application --> CommandRunner : (notes updated)
+CommandRunner -> Ui : showStatusUpdated(app)
+Ui --> User : "Updated Status: Google | SE manager | ... | OFFER (Note: Negotiate salary)"
+@enduml
