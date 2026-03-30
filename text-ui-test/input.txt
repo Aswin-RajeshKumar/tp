@@ -1,4 +1,3 @@
-delete 1
 help
 add c/Google p/SE manager d/2025-03-10
 add c/Amazon p/Data Analyst d/2025-03-08
@@ -24,4 +23,5 @@ edit 1 c/Apple
 edit 1 d/2027-01-09
 list
 delete 2
+delete 1
 bye

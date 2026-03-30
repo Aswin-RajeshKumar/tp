@@ -39,7 +39,7 @@ The following diagram illustrates how the parser processes a typical `edit` comm
 
 The **API** of this component is specified in `Storage.java`.
 
-![Ui Component](diagrams/component-ui/ui-class.png)
+![Ui Component](diagrams/component-storage/storage-class.png)
 
 The `Storage` component,
 
@@ -422,7 +422,7 @@ The operations are handled via the following methods:
 
 The following sequence diagram illustrates the flow of filtering applications by status:
 
-![Filter Sequence Diagram](diagrams/filter/sequence_diagram.png)
+![Filter Sequence Diagram](diagrams/filter/sequence.png)
 
 
 #### Design Rationale
@@ -508,8 +508,6 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 ## User Stories
 
-### Version 1.0 (Core Features)
-
 | Version | As a ... | I want to ...                                                     | So that I can ...                      |
 |------|----------|-------------------------------------------------------------------|----------------------------------------|
 | v1.0 | user | add a job application with company, position, and submission date | keep track of where I have applied     |
@@ -517,11 +515,6 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 | v1.0 | user | delete applications                                               | manage my application list effectively |
 | v1.0 | user | update application status                                         | track my application progress          |
 | v1.0 | user | sort applications by submission date                              | prioritize older applications          |
-
-### Version 2.0 (Enhanced Features)
-
-| Version | As a ... | I want to ... | So that I can ...                                          |
-|---------|----------|---------------|------------------------------------------------------------|
 | v2.0 | user | store my applications persistently | come back to it at different points in time                |
 | v2.0 | user | edit an existing application | update details without deleting and re-adding applications |
 | v2.0 | user | search applications by company name | locate applications for specific companies                 |
