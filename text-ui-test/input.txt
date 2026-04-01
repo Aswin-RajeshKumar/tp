@@ -11,14 +11,15 @@ tag 3 add/INTERN
 status 1 set/OFFER note/Negotiate salary
 status 2 set/Interview note/Case study prep
 status 3 set/Pending note/Waiting for reply
-search Google
-search micro
+search c/Google
+search c/micro
+search p/intern
+search s/offer
 sort
 list
 tag 2 remove/FINANCE
 delete 1
 list
-search google
 edit 1 c/Apple
 edit 1 d/2027-01-09
 list

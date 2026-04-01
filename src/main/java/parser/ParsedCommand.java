@@ -25,6 +25,7 @@ public class ParsedCommand {
 
     // Search command field
     public final String searchTerm;
+    public final String searchType;
 
     // Status command fields
     public final String statusValue;
@@ -54,6 +55,7 @@ public class ParsedCommand {
         this.note = null;
         this.tag = null;
         this.isAddTag = false;
+        this.searchType = null;
 
         // Route the string value based on the CommandType
         if (type == CommandType.FILTER || type == CommandType.SEARCH) {
@@ -81,6 +83,7 @@ public class ParsedCommand {
         this.newDate = null;
         this.newStatus = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.statusValue = null;
         this.note = null;
         this.tag = null;
@@ -100,6 +103,7 @@ public class ParsedCommand {
         this.newDate = null;
         this.newStatus = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.statusValue = null;
         this.note = null;
         this.tag = null;
@@ -119,15 +123,17 @@ public class ParsedCommand {
         this.position = null;
         this.date = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.statusValue = null;
         this.note = null;
         this.tag = null;
         this.isAddTag = false;
     }
 
-    // Constructor for SEARCH (Legacy support - can also use the general constructor)
-    public ParsedCommand(String searchTerm) {
+    // Constructor for SEARCH
+    public ParsedCommand(String searchType, String searchTerm) {
         this.type = CommandType.SEARCH;
+        this.searchType = searchType;
         this.searchTerm = searchTerm;
         this.errorMessage = null;
         this.index = -1;
@@ -159,6 +165,7 @@ public class ParsedCommand {
         this.newDate = null;
         this.newStatus = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.tag = null;
         this.isAddTag = false;
     }
@@ -178,6 +185,7 @@ public class ParsedCommand {
         this.newDate = null;
         this.newStatus = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.statusValue = null;
         this.note = null;
     }
@@ -195,6 +203,7 @@ public class ParsedCommand {
         this.newDate = null;
         this.newStatus = null;
         this.searchTerm = null;
+        this.searchType = null;
         this.statusValue = null;
         this.note = null;
         this.tag = null;

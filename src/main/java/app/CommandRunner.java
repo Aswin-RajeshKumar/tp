@@ -126,60 +126,41 @@ public class CommandRunner {
                     break;
                 }
 
-                String rawSearchTerm = cmd.searchTerm != null ? cmd.searchTerm.trim() : "";
-                if (rawSearchTerm.isEmpty()) {
+                String type = cmd.searchType;
+                String keyword = cmd.searchTerm != null ? cmd.searchTerm.toLowerCase() : "";
+
+                if (keyword.isEmpty()) {
                     Ui.showError("Please enter a valid search term.");
                     break;
                 }
 
-                boolean isExactMatch = rawSearchTerm.startsWith("exact:");
-                boolean isNegativeSearch = rawSearchTerm.startsWith("!");
-                String[] searchKeywords;
-
-                if (isExactMatch) {
-                    searchKeywords = new String[]{rawSearchTerm.substring("exact:".length()).trim().toLowerCase()};
-                } else if (isNegativeSearch) {
-                    searchKeywords = new String[]{rawSearchTerm.substring(1).trim().toLowerCase()};
-                } else {
-                    searchKeywords = rawSearchTerm.split("\\s+");
-                    for (int i = 0; i < searchKeywords.length; i++) {
-                        searchKeywords[i] = searchKeywords[i].trim().toLowerCase();
-                    }
-                }
-
                 ArrayList<Application> results = new ArrayList<>();
+
                 for (Application app : applications) {
-                    String companyLower = app.getCompany().toLowerCase();
-                    boolean matches = true;
+                    String field = "";
 
-                    for (String keyword : searchKeywords) {
-                        if (keyword.isEmpty()) continue;
-
-                        if (isExactMatch) {
-                            if (!companyLower.equals(keyword)) {
-                                matches = false;
-                                break;
-                            }
-                        } else if (isNegativeSearch) {
-                            if (companyLower.contains(keyword)) {
-                                matches = false;
-                                break;
-                            }
-                        } else {
-                            if (!companyLower.contains(keyword)) {
-                                matches = false;
-                                break;
-                            }
-                        }
+                    switch (type) {
+                    case "c":
+                        field = app.getCompany().toLowerCase();
+                        break;
+                    case "p":
+                        field = app.getPosition().toLowerCase();
+                        break;
+                    case "s":
+                        field = app.getStatus().toLowerCase();
+                        break;
+                    default:
+                        Ui.showError("Invalid search type!");
+                        return true;
                     }
 
-                    if (matches) {
+                    if (field.contains(keyword)) {
                         results.add(app);
                     }
                 }
 
                 Collections.sort(results);
-                Ui.showSearchResults(results, rawSearchTerm);
+                Ui.showSearchResults(results, type + "/" + keyword);
                 break;
 
             case STATUS:

@@ -5,42 +5,38 @@ import parser.ParsedCommand;
 
 /**
  * Parses the search command.
- * Format: search [COMPANY_NAME]
  * Supports: exact match, negative search, multi-keyword search
  */
 public class SearcherParser {
 
     public static ParsedCommand parse(String input) throws JobPilotException {
         if (input == null || input.trim().isEmpty()) {
-            throw new JobPilotException("Please provide a company name to search. Example: search google");
+            throw new JobPilotException("Please provide a search query. Example: search c/google");
         }
 
-        String searchTerm = input.substring("search".length()).trim();
+        String args = input.substring("search".length()).trim();
 
-        if (searchTerm.isEmpty()) {
-            throw new JobPilotException("Please provide a company name to search. Example: search google");
-        }
-
-        if (searchTerm.length() < 2) {
-            throw new JobPilotException("Search term is too short! Use at least 2 characters.");
-        }
-        if (searchTerm.length() > 50) {
-            throw new JobPilotException("Search term is too long! Maximum 50 characters allowed.");
+        if (args.isEmpty()) {
+            throw new JobPilotException("Please provide a search query. Example: search c/google");
         }
 
-        if (containsInvalidCharacters(searchTerm)) {
-            throw new JobPilotException("Search term contains invalid characters! Use letters, numbers, and spaces only.");
+        if (!args.contains("/")) {
+            throw new JobPilotException("Invalid format! Use: search c/xxx or p/xxx or s/xxx");
         }
-        return new ParsedCommand(searchTerm);
-    }
 
-    private static boolean containsInvalidCharacters(String term) {
-        for (int i = 0; i < term.length(); i++) {
-            char c = term.charAt(i);
-            if (!Character.isLetterOrDigit(c) && c != ' ' && c != ':' && c != '!') {
-                return true;
-            }
+        int slashIndex = args.indexOf("/");
+
+        String type = args.substring(0, slashIndex).trim().toLowerCase();
+        String value = args.substring(slashIndex + 1).trim().toLowerCase();
+
+        if (value.isEmpty()) {
+            throw new JobPilotException("Search value cannot be empty!");
         }
-        return false;
+
+        if (!type.equals("c") && !type.equals("p") && !type.equals("s")) {
+            throw new JobPilotException("Invalid search type! Use c/, p/, or s/");
+        }
+
+        return new ParsedCommand(type, value);
     }
 }
