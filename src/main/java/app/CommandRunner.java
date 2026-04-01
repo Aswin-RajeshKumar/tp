@@ -76,11 +76,52 @@ public class CommandRunner {
             Filterer.filterByStatus(applications, cmd.searchTerm, null);
             break;
 
-        case SORT:
-            Collections.sort(applications);
-            Ui.showSortedMessage();
-            Ui.showApplicationList(applications);
-            break;
+            case SORT:
+                if (applications.isEmpty()) {
+                    Ui.showError("No applications to sort!");
+                    break;
+                }
+
+                String sortType = cmd.searchTerm != null ? cmd.searchTerm.trim().toLowerCase() : "";
+                boolean reverse = sortType.contains("reverse");
+
+                if (sortType.isEmpty() || sortType.startsWith("date")) {
+                    if (reverse) {
+                        applications.sort(Collections.reverseOrder());
+                        Ui.showSortedMessage("date (reverse)");
+                    } else {
+                        Collections.sort(applications);
+                        Ui.showSortedMessage("date");
+                    }
+                }
+
+                // Sort by company name in alphabetical order
+                else if (sortType.startsWith("company")) {
+                    if (reverse) {
+                        applications.sort((a, b) -> b.getCompany().compareTo(a.getCompany()));
+                    } else {
+                        applications.sort((a, b) -> a.getCompany().compareTo(b.getCompany()));
+                    }
+                    Ui.showSortedMessage("company" + (reverse ? " (reverse)" : ""));
+                }
+
+                // Sort by application status in alphabetical order
+                else if (sortType.startsWith("status")) {
+                    if (reverse) {
+                        applications.sort((a, b) -> b.getStatus().compareTo(a.getStatus()));
+                    } else {
+                        applications.sort((a, b) -> a.getStatus().compareTo(b.getStatus()));
+                    }
+                    Ui.showSortedMessage("status" + (reverse ? " (reverse)" : ""));
+                }
+
+                else {
+                    Ui.showError("Invalid sort type! Use: sort date/company/status [reverse]");
+                    break;
+                }
+
+                Ui.showApplicationList(applications);
+                break;
 
         case SEARCH:
             case SEARCH:
