@@ -83,19 +83,68 @@ public class CommandRunner {
             break;
 
         case SEARCH:
-            if (applications.isEmpty()) {
-                Ui.showError("No applications to search!");
-                break;
-            }
-
-            ArrayList<Application> results = new ArrayList<>();
-            for (Application app : applications) {
-                if (app.getCompany().toLowerCase().contains(cmd.searchTerm.toLowerCase())) {
-                    results.add(app);
+            case SEARCH:
+                if (applications.isEmpty()) {
+                    Ui.showError("No applications to search!");
+                    break;
                 }
-            }
-            Ui.showSearchResults(results, cmd.searchTerm);
-            break;
+
+                String rawSearchTerm = cmd.searchTerm.trim();
+                if (rawSearchTerm.isEmpty()) {
+                    Ui.showError("Please provide a company name to search. Example: search google");
+                    break;
+                }
+
+                boolean isExactMatch = rawSearchTerm.startsWith("exact:");
+                boolean isNegativeSearch = rawSearchTerm.startsWith("!");
+                String[] searchKeywords;
+
+                if (isExactMatch) {
+                    searchKeywords = new String[]{rawSearchTerm.substring("exact:".length()).trim().toLowerCase()};
+                } else if (isNegativeSearch) {
+                    searchKeywords = new String[]{rawSearchTerm.substring(1).trim().toLowerCase()};
+                } else {
+                    searchKeywords = rawSearchTerm.split("\\s+");
+                    for (int i = 0; i < searchKeywords.length; i++) {
+                        searchKeywords[i] = searchKeywords[i].trim().toLowerCase();
+                    }
+                }
+
+                ArrayList<Application> results = new ArrayList<>();
+                for (Application app : applications) {
+                    String companyLower = app.getCompany().toLowerCase();
+                    boolean matches = true;
+
+                    for (String keyword : searchKeywords) {
+                        if (keyword.isEmpty()) continue;
+
+                        if (isExactMatch) {
+                            if (!companyLower.equals(keyword)) {
+                                matches = false;
+                                break;
+                            }
+                        } else if (isNegativeSearch) {
+                            if (companyLower.contains(keyword)) {
+                                matches = false;
+                                break;
+                            }
+                        } else {
+                            if (!companyLower.contains(keyword)) {
+                                matches = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (matches) {
+                        results.add(app);
+                    }
+                }
+
+                Collections.sort(results);
+
+                Ui.showSearchResults(results, rawSearchTerm);
+                break;
 
         case STATUS:
             if (cmd.index < 0 || cmd.index >= applications.size()) {
