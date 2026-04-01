@@ -18,11 +18,11 @@ public class FilterParser {
             throw new JobPilotException("Filter command is missing arguments! Use: filter status/STATUS");
         }
 
-        if (!arguments.contains("status/")) {
+        if (!arguments.contains("s/")) {
             throw new JobPilotException("Invalid filter format! Expected: filter status/STATUS");
         }
 
-        String statusQuery = arguments.replace("status/", "").trim();
+        String statusQuery = arguments.replace("s/", "").trim();
 
         if (statusQuery.isEmpty()) {
             throw new JobPilotException("Status value cannot be empty!");
