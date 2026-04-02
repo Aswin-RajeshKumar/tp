@@ -9,7 +9,7 @@ By using JobPilot, users can track application progress and important details wi
 
 1. **Install Java 17+:** Verify that your computer has Java `17` or a newer version installed. <br>
    *Mac users:* Please follow the specific JDK installation guide [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
-2. **Download the App:** Grab the latest `.jar` release file from [here]().
+2. **Download the App:** Grab the latest `.jar` release file from [here](https://github.com/AY2526S2-CS2113-W13-3/tp/releases).
 3. **Set Up Your Directory:** Move the downloaded file into a dedicated new folder. (Note: Running the app for the first time will automatically generate a `data/JobPilotData.txt` file in this directory to save your tasks).
 4. **Launch JobPilot** Open your terminal and run the app with the following command: `java -jar <release-name>.jar`
 
@@ -172,14 +172,15 @@ Format:
 
 Examples:
 - `search c/Google`
+
 ```text
 Found 1 application(s) matching 'c/google':
 1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
-
 ```
 
 - `search c/micro`
+
 ```text
 Found 1 application(s) matching 'c/micro':
 1. Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
@@ -187,6 +188,7 @@ ___________________________________________________________________
 ```
 
 - `search p/intern`
+
 ```text
 Found 1 application(s) matching 'p/intern':
 1. Microsoft | SDE Intern | 2025-03-12 | PENDING (Note: Waiting for reply) | Tags: [TECH, INTERN]
@@ -194,6 +196,7 @@ ___________________________________________________________________
 ```
 
 - `search s/offer`
+
 ```text
 Found 1 application(s) matching 's/offer':
 1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
