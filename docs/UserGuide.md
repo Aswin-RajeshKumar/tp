@@ -200,6 +200,29 @@ Found 1 application(s) matching 's/offer':
 ___________________________________________________________________
 ```
 
+### Sorting Applications: `sort`
+
+Sorts applications by date, company name, or status, with support for ascending or reverse order.
+No applications will be removed during sorting.
+
+Format: 
+- `sort`
+- `sort date`
+- `sort company`
+- `sort status`
+- `sort date reverse`
+- `sort company reverse`
+- `sort status reverse`
+
+Examples:
+- `sort`
+- `sort date reverse`
+- `sort company`
+- `sort status reverse`
+
+Example Output:
+`Sorted by submission date!`
+
 ### Exiting the program: bye
 
 Exits JobPilot and saves the application data to a readable text file.
