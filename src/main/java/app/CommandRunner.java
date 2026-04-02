@@ -40,8 +40,12 @@ public class CommandRunner {
         switch (cmd.getType()) {
 
         case BYE:
-            Ui.showGoodbye(applications.size());
-            Ui.close();
+            try {
+                Ui.showGoodbye(applications.size());
+                Ui.close();
+            } catch (IllegalStateException e) {
+                Ui.showError("Scanner was already closed.");
+            }
             return false;
 
         case HELP:
@@ -175,7 +179,7 @@ public class CommandRunner {
      */
     private void handleSearch(String type, String query) {
         if (applications.isEmpty()) {
-            Ui.showError("No applications to search!");
+            Ui.showError("Application list is empty!");
             return;
         }
 

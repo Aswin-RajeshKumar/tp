@@ -58,6 +58,60 @@ class DeleterTest {
     }
 
     @Test
+    public void deleteApplication_deleteFirstOfThree_remainingApplicationsShiftCorrectly() {
+        Application first = new Application("Google", "Software Engineer", "2026-03-01");
+        Application second = new Application("Apple", "Data Analyst", "2026-03-02");
+        Application third = new Application("Microsoft", "UX Designer", "2026-03-03");
+
+        applications.add(first);
+        applications.add(second);
+        applications.add(third);
+
+        ParsedCommand cmd = new ParsedCommand(0);
+        runner.run(cmd);
+
+        assertEquals(2, applications.size());
+        assertEquals(second, applications.get(0));
+        assertEquals(third, applications.get(1));
+    }
+
+    @Test
+    public void deleteApplication_deleteMiddleOfThree_correctRemainingApplications() {
+        Application first = new Application("Google", "Software Engineer", "2026-03-01");
+        Application second = new Application("Apple", "Data Analyst", "2026-03-02");
+        Application third = new Application("Microsoft", "UX Designer", "2026-03-03");
+
+        applications.add(first);
+        applications.add(second);
+        applications.add(third);
+
+        ParsedCommand cmd = new ParsedCommand(1);
+        runner.run(cmd);
+
+        assertEquals(2, applications.size());
+        assertEquals(first, applications.get(0));
+        assertEquals(third, applications.get(1));
+    }
+
+    @Test
+    public void deleteApplication_deleteLastOfThree_correctRemainingApplications() {
+        Application first = new Application("Google", "Software Engineer", "2026-03-01");
+        Application second = new Application("Apple", "Data Analyst", "2026-03-02");
+        Application third = new Application("Microsoft", "UX Designer", "2026-03-03");
+
+        applications.add(first);
+        applications.add(second);
+        applications.add(third);
+
+        ParsedCommand cmd = new ParsedCommand(2);
+        runner.run(cmd);
+
+        assertEquals(2, applications.size());
+        assertEquals(first, applications.get(0));
+        assertEquals(second, applications.get(1));
+    }
+
+    @Test
     public void deleteApplication_fromEmptyList_invalidIndexHandled() {
         ParsedCommand cmd = new ParsedCommand(0);
         boolean continueRunning = runner.run(cmd);
@@ -76,4 +130,16 @@ class DeleterTest {
         assertEquals(1, applications.size());
         assertEquals(true, continueRunning);
     }
+
+    @Test
+    public void deleteApplication_negativeIndex_doesNotModifyList() {
+        applications.add(new Application("Google", "Software Engineer", "2026-03-01"));
+
+        ParsedCommand cmd = new ParsedCommand(-1);
+        boolean continueRunning = runner.run(cmd);
+
+        assertEquals(1, applications.size());
+        assertEquals(true, continueRunning);
+    }
+
 }

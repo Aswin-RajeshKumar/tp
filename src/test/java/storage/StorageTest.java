@@ -124,4 +124,42 @@ class StorageTest {
         assertEquals("Google", loadedApps.get(0).getCompany());
         assertEquals("Amazon", loadedApps.get(1).getCompany());
     }
+
+    @Test
+    void saveToFile_emptyApplicationList_shouldCreateEmptyFile() {
+        ArrayList<Application> emptyList = new ArrayList<>();
+
+        storage.saveToFile(emptyList);
+        ArrayList<Application> loadedApps = storage.loadFromFile();
+
+        assertTrue(loadedApps.isEmpty());
+    }
+
+    @Test
+    void loadFromFile_withOnlyCorruptedLines_shouldReturnEmptyList() throws Exception {
+        FileWriter writer = new FileWriter(defaultFile, false);
+        writer.write("INVALID_LINE\n");
+        writer.write("Another bad line\n");
+        writer.close();
+
+        ArrayList<Application> loadedApps = storage.loadFromFile();
+
+        assertTrue(loadedApps.isEmpty());
+    }
+
+    @Test
+    void loadFromFile_withMixedValidAndCorruptedLines_shouldLoadOnlyValidApplications() throws Exception {
+        FileWriter writer = new FileWriter(defaultFile, false);
+        writer.write("Google | SE Manager | 2025-03-10 | INTERVIEW | Notes | TECH\n");
+        writer.write("INVALID_LINE\n");
+        writer.write("Meta | Product Manager | 2025-05-20 | OFFER | Accepted | TECH,AI\n");
+        writer.close();
+
+        ArrayList<Application> loadedApps = storage.loadFromFile();
+
+        assertEquals(2, loadedApps.size());
+        assertEquals("Google", loadedApps.get(0).getCompany());
+        assertEquals("Meta", loadedApps.get(1).getCompany());
+    }
+
 }

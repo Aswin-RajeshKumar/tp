@@ -18,7 +18,7 @@ public class StatusParser {
 
     // Command and Prefix Constants
     private static final String COMMAND_WORD = "status";
-    private static final String PREFIX_SET = "set/";
+    private static final String PREFIX_SET = "s/";
     private static final String PREFIX_NOTE = "note/";
 
     /**
@@ -46,13 +46,13 @@ public class StatusParser {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "User provided non-numeric index: " + tokens[1]);
-            throw new JobPilotException("Invalid index! Use a number: status 1 set/OFFER");
+            throw new JobPilotException("Invalid index! Use a number: status 1 s/OFFER");
         }
 
         // 3. Locate where the prefixes (set/ or note/) start
         int firstPrefixPos = findFirstPrefixPos(trimmed);
         if (firstPrefixPos == -1) {
-            throw new JobPilotException("No status or note provided! Use set/ or note/.");
+            throw new JobPilotException("No status or note provided! Use s/ or note/.");
         }
 
         String remaining = trimmed.substring(firstPrefixPos);
@@ -102,7 +102,7 @@ public class StatusParser {
 
     /**
      * Finds the next prefix boundary in the remaining string.
-     * This is crucial for splitting "set/OFFER note/Interview" correctly.
+     * This is crucial for splitting "s/OFFER note/Interview" correctly.
      */
     private static int findNextPrefix(String str, int start) {
         int nextSet = str.indexOf(PREFIX_SET, start);

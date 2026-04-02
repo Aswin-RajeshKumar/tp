@@ -12,7 +12,7 @@ Available Commands:
 add c/COMPANY p/POSITION d/DATE                             Add a new job application
 edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]     Edit existing application
 delete INDEX                                                Delete an application
-status INDEX set/STATUS note/NOTE                           Update application status and add a note
+status INDEX [s/STATUS] [note/NOTE]                         Update application status and add a note
 filter s/STATUS                                             Filter applications by status
 tag INDEX add/TAG                                           Add a tag to an application
 tag INDEX remove/TAG                                        Remove a tag from an application
@@ -43,14 +43,14 @@ Added tag: TECH -> Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH]
 ___________________________________________________________________
 Added tag: INTERN -> Microsoft | SDE Intern | 2025-03-12 | Pending | Tags: [TECH, INTERN]
 ___________________________________________________________________
-Updated Status: Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Updated Status: Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
-Updated Status: Amazon | Data Analyst | 2025-03-08 | Interview (Note: Case study prep) | Tags: [FINANCE, DATA]
+Updated Status: Amazon | Data Analyst | 2025-03-08 | Pending (Note: Case study prep) | Tags: [FINANCE, DATA]
 ___________________________________________________________________
 Updated Status: Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
 Found 1 application(s) matching 'c/google':
-1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+1. Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
 Found 1 application(s) matching 'c/micro':
 1. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
@@ -58,38 +58,37 @@ ___________________________________________________________________
 Found 1 application(s) matching 'p/intern':
 1. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
-Found 1 application(s) matching 's/offer':
-1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+No applications found for company: s/offer
 ___________________________________________________________________
 Sorted by submission date!
 Here are your applications:
-1. Amazon | Data Analyst | 2025-03-08 | Interview (Note: Case study prep) | Tags: [FINANCE, DATA]
-2. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+1. Amazon | Data Analyst | 2025-03-08 | Pending (Note: Case study prep) | Tags: [FINANCE, DATA]
+2. Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 3. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
 Here are your applications:
-1. Amazon | Data Analyst | 2025-03-08 | Interview (Note: Case study prep) | Tags: [FINANCE, DATA]
-2. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+1. Amazon | Data Analyst | 2025-03-08 | Pending (Note: Case study prep) | Tags: [FINANCE, DATA]
+2. Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 3. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
-Removed tag: /FINANCE -> Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Removed tag: /FINANCE -> Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
 Deleted application:
-Amazon | Data Analyst | 2025-03-08 | Interview (Note: Case study prep) | Tags: [FINANCE, DATA]
+Amazon | Data Analyst | 2025-03-08 | Pending (Note: Case study prep) | Tags: [FINANCE, DATA]
 You have 2 application(s) left.
 ___________________________________________________________________
 Here are your applications:
-1. Google | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+1. Google | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 2. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
 Updated application:
-Apple | SE manager | 2025-03-10 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Apple | SE manager | 2025-03-10 | Pending (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
 Updated application:
-Apple | SE manager | 2027-01-09 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Apple | SE manager | 2027-01-09 | Pending (Note: Negotiate salary) | Tags: [TECH]
 ___________________________________________________________________
 Here are your applications:
-1. Apple | SE manager | 2027-01-09 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+1. Apple | SE manager | 2027-01-09 | Pending (Note: Negotiate salary) | Tags: [TECH]
 2. Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: [TECH, INTERN]
 ___________________________________________________________________
 Deleted application:
@@ -97,7 +96,7 @@ Microsoft | SDE Intern | 2025-03-12 | Pending (Note: Waiting for reply) | Tags: 
 You have 1 application(s) left.
 ___________________________________________________________________
 Deleted application:
-Apple | SE manager | 2027-01-09 | OFFER (Note: Negotiate salary) | Tags: [TECH]
+Apple | SE manager | 2027-01-09 | Pending (Note: Negotiate salary) | Tags: [TECH]
 You have 0 application(s) left.
 ___________________________________________________________________
 Bye! You added 0 application(s).

@@ -18,8 +18,7 @@ public class JobPilot {
     private static final Logger LOGGER = Logger.getLogger(JobPilot.class.getName());
 
     public static void main(String[] args) {
-        java.util.logging.LogManager.getLogManager().reset();
-        //LOGGER.setLevel(Level.INFO);
+        LOGGER.setLevel(Level.INFO);
 
         Ui.showWelcome();
         Storage storage = new Storage();

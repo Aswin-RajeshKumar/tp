@@ -146,11 +146,11 @@ public class Ui {
 
         if (results.isEmpty()) {
             System.out.println("No applications found with status: " + status);
+            System.out.println(HORIZONTAL_LINE);
         } else {
             System.out.println("Found " + results.size() + " application(s) with status '" + status + "':");
             showApplicationList(results);
         }
-        System.out.println(HORIZONTAL_LINE);
     }
 
     /**
@@ -201,7 +201,7 @@ public class Ui {
                 add c/COMPANY p/POSITION d/DATE                             Add a new job application
                 edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]     Edit existing application
                 delete INDEX                                                Delete an application
-                status INDEX set/STATUS note/NOTE                           Update application status and add a note
+                status INDEX [s/STATUS] [note/NOTE]                         Update application status and add a note
                 filter s/STATUS                                             Filter applications by status
                 tag INDEX add/TAG                                           Add a tag to an application
                 tag INDEX remove/TAG                                        Remove a tag from an application

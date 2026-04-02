@@ -29,7 +29,7 @@ Available Commands:
 add c/COMPANY p/POSITION d/DATE                             Add a new job application
 edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]     Edit existing application
 delete INDEX                                                Delete an application
-status INDEX set/STATUS note/NOTE                           Update application status and add a note
+status INDEX [s/STATUS] [note/NOTE]                         Update application status and add a note
 filter s/STATUS                                             Filter applications by status
 tag INDEX add/TAG                                           Add a tag to an application
 tag INDEX remove/TAG                                        Remove a tag from an application
@@ -100,11 +100,11 @@ ___________________________________________________________________
 ### Updating application status: 'status'
 Updates the recruitment progress of a specific job application and allows for independent note-taking. This allows you to track interview feedback or offer details separately from the company info.
 
-Format: status INDEX [set/STATUS] [note/NOTE]
+Format: status INDEX [s/STATUS] [note/NOTE]
 
 Updates the application at the specified INDEX.
 
-set/STATUS: The current stage (e.g., Invited, Rejected, Offer).
+s/STATUS: The current stage (e.g., Invited, Rejected, Offer).
 
 note/NOTE: (Optional) Additional context, comments, or interview feedback.
 
@@ -112,9 +112,9 @@ Flexibility: You can update both fields at once, or just one. If a field is omit
 
 Examples:
 
-status 1 set/Interview note/Scheduled for next Tuesday
+status 1 s/Interview note/Scheduled for next Tuesday
 
-status 2 set/Rejected (Previous note remains unchanged)
+status 2 s/Rejected (Previous note remains unchanged)
 
 status 3 note/Salary negotiation in progress (Status remains unchanged)
 
@@ -127,15 +127,15 @@ Google | SE manager | 2025-03-10 | INTERVIEW (Note: Scheduled for next Tuesday) 
 ### Filtering applications by status: 'filter'
 Retrieves all applications that match a specific status. This is useful for focusing only on active leads.
 
-Format: filter status/STATUS
+Format: filter s/STATUS
 
 The search is case-insensitive and supports partial matching (e.g., filter status/off will find applications with the status "OFFER").
 
 Examples:
 
-filter status/OFFER
+filter s/OFFER
 
-filter status/pending
+filter s/pending
 
 Example Output:
 
@@ -245,17 +245,17 @@ ___________________________________________________________________
 
 ## Command Summary
 
-| Action | Format, Examples|
-|--------|--------------------------------------------------------------------------------------------------|
-| Add | `add c/COMPANY p/POSITION d/DATE` <br> e.g., `add c/Google p/Software Engineer d/2026-03-29`|
-| Edit | `edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]` <br> e.g., `edit 2 c/Google p/Backend Engineer s/Interview`|
-| Delete | `delete INDEX` <br> e.g., `delete 1`|
-| Status | `status INDEX set/STATUS note/NOTE` <br> e.g., `status 1 set/Interview note/Phone screening completed`|
-| Filter | `filter s/STATUS` <br> e.g., `filter s/Applied`|
-| Tag Add | `tag INDEX add/TAG` <br> e.g., `tag 1 add/Tech`|
-| Tag Remove | `tag INDEX remove/TAG` <br> e.g., `tag 1 remove/Tech`|
-| List | `list`|
-| Sort | `sort`|
-| Search | `search [c/company] [p/position] [s/status]` <br> e.g., `search c/Google`|
-| Help | `help`|
-| Exit | `bye`|
+| Action | Format, Examples                                                                                                      |
+|--------|-----------------------------------------------------------------------------------------------------------------------|
+| Add | `add c/COMPANY p/POSITION d/DATE` <br> e.g., `add c/Google p/Software Engineer d/2026-03-29`                          |
+| Edit | `edit INDEX [c/COMPANY] [p/POSITION] [d/DATE] [s/STATUS]` <br> e.g., `edit 2 c/Google p/Backend Engineer s/Interview` |
+| Delete | `delete INDEX` <br> e.g., `delete 1`                                                                                  |
+| Status | `status INDEX [s/STATUS] [note/NOTE]` <br> e.g., `status 1 set/Interview note/Phone screening completed`              |
+| Filter | `filter s/STATUS` <br> e.g., `filter s/Applied`                                                                       |
+| Tag Add | `tag INDEX add/TAG` <br> e.g., `tag 1 add/Tech`                                                                       |
+| Tag Remove | `tag INDEX remove/TAG` <br> e.g., `tag 1 remove/Tech`                                                                 |
+| List | `list`                                                                                                                |
+| Sort | `sort`                                                                                                                |
+| Search | `search [c/company] [p/position] [s/status]` <br> e.g., `search c/Google`                                             |
+| Help | `help`                                                                                                                |
+| Exit | `bye`                                                                                                                 |
