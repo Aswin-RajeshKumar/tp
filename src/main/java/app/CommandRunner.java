@@ -74,10 +74,6 @@ public class CommandRunner {
             handleTagUpdate(cmd);
             break;
 
-        case ERROR:
-            Ui.showError(cmd.getErrorMessage());
-            break;
-
         default:
             Ui.showError("Unknown command. Type 'help' to see all available commands.");
         }
