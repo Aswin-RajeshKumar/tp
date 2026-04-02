@@ -102,6 +102,7 @@ public class Ui {
     public static void showApplicationList(ArrayList<Application> applications) {
         if (applications.isEmpty()) {
             System.out.println("There is no application yet.");
+            System.out.println(HORIZONTAL_LINE);
             return;
         }
         System.out.println("Here are your applications:");
