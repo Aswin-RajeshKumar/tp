@@ -89,7 +89,7 @@ public class CommandRunner {
             break;
 
         case SEARCH:
-            handleSearch(cmd.getSearchTerm());
+            handleSearch(cmd.getSearchType(), cmd.getSearchTerm());
             break;
 
         case STATUS:
@@ -136,15 +136,26 @@ public class CommandRunner {
     /**
      * Handles searching with a safety check for empty lists.
      */
-    private void handleSearch(String query) {
+    private void handleSearch(String type, String query) {
         if (applications.isEmpty()) {
             Ui.showError("No applications to search!");
             return;
         }
 
         ArrayList<Application> results = new ArrayList<>();
+        String lowerQuery = query.toLowerCase();
+
         for (Application app : applications) {
-            if (app.getCompany().toLowerCase().contains(query.toLowerCase())) {
+            boolean isMatch = false;
+            if (type == null || type.equals("c")) {
+                isMatch = app.getCompany().toLowerCase().contains(lowerQuery);
+            } else if (type.equals("p")) {
+                isMatch = app.getPosition().toLowerCase().contains(lowerQuery);
+            } else if (type.equals("s")) {
+                isMatch = app.getStatus().toLowerCase().contains(lowerQuery);
+            }
+
+            if (isMatch) {
                 results.add(app);
             }
         }

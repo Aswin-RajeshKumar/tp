@@ -93,7 +93,7 @@ public class SearchTest {
         applications.add(app1);
         applications.add(app2);
 
-        runner.run(new ParsedCommand("s", "accepted"));
+        runner.run(new ParsedCommand("s", "Accepted"));
 
         String output = outContent.toString();
         assertTrue(output.contains("Google"));
