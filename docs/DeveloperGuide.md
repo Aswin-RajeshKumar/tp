@@ -461,6 +461,7 @@ The following sequence diagram illustrates the flow of filtering applications by
 | Missing Arguments | User enters `filter` alone | "Filter command is missing arguments! Use: filter status/STATUS" |
 | Missing Prefix | User enters `filter PENDING` | "Invalid filter format! Expected: filter status/STATUS" |
 | Empty Value | User enters `filter s/` | "Status value cannot be empty!" |
+
 ### Separate Notes from Status Feature
 
 #### Implementation Details
@@ -624,7 +625,7 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 - **Action:** Enter `delete 0`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating an invalid index.
   - No deletion occurs.
   - Storage remains unchanged.
 
@@ -632,7 +633,7 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 - **Action:** Enter `delete`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating an invalid index.
   - No deletion.
   - Data file remains unchanged.
 
@@ -640,7 +641,7 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 - **Action:** Enter `delete abc`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown due to non-numeric input.
   - No deletion.
   - Storage remains consistent.
 
@@ -648,7 +649,7 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 - **Action:** Enter index greater than list size
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating the index is out of bounds.
   - No deletion occurs.
   - Data file unchanged.
 
