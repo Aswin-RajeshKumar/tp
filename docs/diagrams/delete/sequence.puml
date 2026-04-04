@@ -8,9 +8,9 @@ skinparam SequenceMessageAlign center
 
 actor User as user
 participant ":JobPilot" as jp
-participant "Delete:Delete" as del <<static>>
-participant "applications:ArrayList<Add>" as apps
-participant "removed:Add" as removed
+participant "Deleter:Deleter" as del <<static>>
+participant "applications:ArrayList<Application>" as apps
+participant "removed:Application" as removed
 participant "System.out:PrintStream" as sysout
 
 user -> jp : "delete 2"
@@ -30,7 +30,7 @@ end note
 
 del -> apps : remove(1)
 activate apps
-return removed:Add
+return removed:Application
 
 del -> removed : toString()
 activate removed

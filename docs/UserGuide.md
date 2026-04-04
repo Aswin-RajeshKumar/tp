@@ -13,9 +13,7 @@ By using JobPilot, users can track application progress and important details wi
 3. **Set Up Your Directory:** Move the downloaded file into a dedicated new folder. (Note: Running the app for the first time will automatically generate a `data/JobPilotData.txt` file in this directory to save your tasks).
 4. **Launch JobPilot** Open your terminal and run the app with the following command: `java -jar <release-name>.jar`
 
-## Features 
-
-{Give detailed description of each feature}
+## Features
 
 ### Viewing help message: `help`
 Shows a message explaining the available commands in JobPilot.

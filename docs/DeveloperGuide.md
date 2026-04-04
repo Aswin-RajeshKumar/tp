@@ -461,6 +461,7 @@ The following sequence diagram illustrates the flow of filtering applications by
 | Missing Arguments | User enters `filter` alone | "Filter command is missing arguments! Use: filter status/STATUS" |
 | Missing Prefix | User enters `filter PENDING` | "Invalid filter format! Expected: filter status/STATUS" |
 | Empty Value | User enters `filter s/` | "Status value cannot be empty!" |
+
 ### Separate Notes from Status Feature
 
 #### Implementation Details
@@ -551,17 +552,20 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 ### 2. Usability
 - Command syntax shall remain consistent with clear prefixes (`c/`, `p/`, `d/`, `s/`, `add/`, `remove/`, `note/`) to minimize user errors.
 - Error messages shall be **descriptive and actionable**, guiding users to correct input mistakes.
-- Commands shall support **partial input** where applicable (e.g., partial company names for search).
 
 ### 3. Accessibility
 - Command-line outputs shall be **readable with standard font sizes**, use clear formatting (tables, line breaks), and avoid color dependence.
 - Messages shall be concise, avoiding technical jargon when addressing end users.
+
+### 4. OS Requirement
+- Shall work on any mainstream OS as long as it has Java 17 or above installed.
 
 ## Glossary
 
 * **CLI** - Command Line Interface.
 * **Filter** - A function to narrow down the application list based on specific criteria.
 * **Tag** - A label assigned to an application for categorization.
+* **Mainstream OS** - Windows, Linux, Unix, MacOS.
 
 ## Instructions for manual testing
 
@@ -618,33 +622,29 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 #### Test case: `delete 0`
 
-- **Action:** Enter `delete 0`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating an invalid index.
   - No deletion occurs.
   - Storage remains unchanged.
 
 #### Test case: `delete` (no index)
 
-- **Action:** Enter `delete`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating an invalid index.
   - No deletion.
   - Data file remains unchanged.
 
 #### Test case: `delete x` (non-numeric index)
 
-- **Action:** Enter `delete abc`
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown due to non-numeric input.
   - No deletion.
   - Storage remains consistent.
 
 #### Test case: `delete N+1` (index out of range)
 
-- **Action:** Enter index greater than list size
 - **Expected:**
-  - Error thrown.
+  - A `JobPilotException` is thrown indicating the index is out of bounds.
   - No deletion occurs.
   - Data file unchanged.
 
