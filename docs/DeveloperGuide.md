@@ -4,7 +4,7 @@
 
 This project was guided by the [SE-EDU initiative's](https://se-education.org) AddressBook-Level3 (AB3). We took guidance from its core architecture., parser design, 
 and command execution flow to better suit JobPilot.
-
+  
 ## Design
 
 ### UI Component
@@ -150,7 +150,7 @@ Given below is an example usage scenario demonstrating how the Delete mechanism 
 
 **Step 6.** `CommandRunner` receives the deleted `Application` and passes it to `Ui.showApplicationDeleted(removed, applications.size())`, which safely prints the confirmation message to the console.
 
-*Note: If the user inputs a non-numeric index (e.g., `delete abc`), a `NumberFormatException` is caught internally by the `DeleterParser`, which then throws a custom `JobPilotException`. This exception is caught in `Parser`, returning an `ERROR` type `ParsedCommand` that the `Ui` displays.*
+*Note: If the user inputs a non-numeric index (e.g., `delete abc`), a `NumberFormatException` is caught internally by the `DeleterParser`, which then throws a custom `JobPilotException`. This exception is caught in `Parser`, which directly calls `Ui.showError()` to display the message to the user, and returns null to safely bypass the `CommandRunner` execution.
 
 The following sequence diagram shows the flow of deleting an application:
 
@@ -570,7 +570,7 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 ## Instructions for manual testing
 
 ## Initial Launch
-1. Use the provided `JobPilot.jar`.
+1. Use the `JobPilot.jar`.
 2. Place the jar in an empty folder.
    3. **Double-click the jar file**  
       **Expected:** JobPilot launches. The CLI prompt appears showing the JobPilot logo.
@@ -612,46 +612,16 @@ tracker to allow users to get a bird's eye view of all their applications and ma
 
 ### Delete Feature Testing
 
-#### Test case: `delete 1`
-
-- **Action:** Enter `delete 1`
-- **Expected:**
-  - First application removed from list.
-  - `Ui.showApplicationDeleted()` shows the deleted application and remaining count.
-  - `Storage.saveToFile()` updates `JobPilotData.txt`.
-
-#### Test case: `delete 0`
-
-- **Expected:**
-  - A `JobPilotException` is thrown indicating an invalid index.
-  - No deletion occurs.
-  - Storage remains unchanged.
-
-#### Test case: `delete` (no index)
-
-- **Expected:**
-  - A `JobPilotException` is thrown indicating an invalid index.
-  - No deletion.
-  - Data file remains unchanged.
-
-#### Test case: `delete x` (non-numeric index)
-
-- **Expected:**
-  - A `JobPilotException` is thrown due to non-numeric input.
-  - No deletion.
-  - Storage remains consistent.
-
-#### Test case: `delete N+1` (index out of range)
-
-- **Expected:**
-  - A `JobPilotException` is thrown indicating the index is out of bounds.
-  - No deletion occurs.
-  - Data file unchanged.
+| Test | Command | Expected |
+|---|---|---|
+| Valid delete | `delete 1` | First application removed from list. Deleted application details and remaining count shown. `JobPilotData.txt` updated. |
+| Invalid index | `delete 0` | `JobPilotException` thrown indicating invalid index. No deletion occurs. Storage remains unchanged. |
+| Missing index | `delete` | `JobPilotException` thrown indicating invalid index. No deletion occurs. Data file remains unchanged. |
+| Non-numeric index | `delete abc` | `JobPilotException` thrown due to non-numeric input. No deletion occurs. Storage remains consistent. |
+| Index out of range | `delete N+1` | `JobPilotException` thrown indicating index is out of bounds. No deletion occurs. Data file remains unchanged. |
 
 ### Storage Feature Testing
 
-1. Perform `add`, `edit`, or `delete` command.  
-   **Expected:**
-- `Storage.saveToFile()` is called.
-- `JobPilotData.txt` updated with the latest application list.
-- On next launch, the list reflects all modifications.
+| Test | Action | Expected                                                                                                                                               |
+|---|---|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Save after modification | Perform `add`, `edit`, or `delete` command | `Storage.saveToFile()` is called. `JobPilotData.txt` is updated with the latest application list. On next launch, the list reflects all modifications. |
