@@ -10,7 +10,7 @@ skinparam classAttributeIconSize 0
 
 
 package "Storage Component" <<Rectangle>> #FFFFFF {
-    class "«class»\nStorage" as Storage {
+    class "Storage" as Storage {
         - FILE_PATH : Path
         + loadFromFile() : ArrayList<Application>
         + saveToFile(...) : void

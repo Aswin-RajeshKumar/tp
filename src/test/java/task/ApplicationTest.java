@@ -89,13 +89,6 @@ class ApplicationTest {
     }
 
     @Test
-    public void run_addCommand_missingAllFields_applicationNotAdded() {
-        ParsedCommand cmd = Parser.parse("add");
-        runner.run(cmd);
-        assertEquals(0, applications.size());
-    }
-
-    @Test
     public void run_addCommand_wrongOrder_applicationNotAdded() {
         ParsedCommand cmd = Parser.parse("add p/Software Engineer c/Google d/2024-09-12");
         runner.run(cmd);

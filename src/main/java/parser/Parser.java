@@ -1,7 +1,15 @@
 package parser;
 
 import exception.JobPilotException;
-import parser.subparsers.*;
+
+import parser.subparsers.ApplicationParser;
+import parser.subparsers.DeleterParser;
+import parser.subparsers.EditorParser;
+import parser.subparsers.FilterParser;
+import parser.subparsers.SearcherParser;
+import parser.subparsers.StatusParser;
+import parser.subparsers.TaggerParser;
+import ui.Ui;
 
 /**
  * Main parser that routes commands to appropriate subparsers.
@@ -31,52 +39,60 @@ public class Parser {
                 try {
                     return ApplicationParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
             case "filter":
                 try {
                     return FilterParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             case "delete":
                 try {
                     return DeleterParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             case "edit":
                 try {
                     return EditorParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             case "search":
                 try {
                     return SearcherParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             case "status":
                 try {
                     return StatusParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             case "tag":
                 try {
                     return TaggerParser.parse(trimmed);
                 } catch (JobPilotException e) {
-                    return new ParsedCommand(CommandType.ERROR, e.getMessage());
+                    Ui.showError(e.getMessage());
+                    break;
                 }
 
             default:
                 return new ParsedCommand(CommandType.UNKNOWN);
         }
+        return null;
     }
 }

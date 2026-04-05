@@ -3,24 +3,24 @@ hide empty members
 skinparam packageStyle rectangle
 
 package "System Memory State (Steps 1 to 4)" {
-    object "<u>applications:ArrayList<Add></u>" as apps {
+    object "<u>applications:ArrayList<Application></u>" as apps {
         size = 2
     }
 
-    object "<u>app1:Add</u>" as app1 {
+    object "<u>app1:Application</u>" as app1 {
         company = "Google"
         position = "Software Engineer"
         date = "01/01/2026"
         status = "PENDING"
-        tags = "Tech"
+        tags = "TECH"
     }
 
-    object "<u>app2:Add</u>" as app2 {
+    object "<u>app2:Application</u>" as app2 {
         company = "Amazon"
         position = "Data Analyst"
         date = "01/01/2026"
         status = "PENDING"
-        tags = "Tech"
+        tags = "TECH"
     }
 
     apps --> app1 : index 0
