@@ -31,9 +31,12 @@ public class Parser {
 
     public static ParsedCommand parse(String input) {
         String trimmed = input.trim();
+        if (trimmed.isEmpty()) {
+            return new ParsedCommand(CommandType.HELP);
+        }
 
-
-        String command = trimmed.split(" ")[0];
+        String[] parts = trimmed.split("\\s+", 2);
+        String command = parts[0].toLowerCase(); // Handles Case Sensitivity
 
         switch (command) {
             case "bye":
