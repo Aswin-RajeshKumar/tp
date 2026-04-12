@@ -17,7 +17,13 @@ filter s/STATUS                                             Filter applications 
 tag INDEX add/TAG                                           Add a tag to an application
 tag INDEX remove/TAG                                        Remove a tag from an application
 list                                                        List all job applications
-sort                                                        Sort applications by date
+sort                                                        Sort applications by date (default)
+sort date                                                   Sort applications by date
+sort company                                                Sort applications by company
+sort status                                                 Sort applications by status
+sort date reverse                                           Sort applications by date (descending)
+sort company reverse                                        Sort applications by company (descending)
+sort status reverse                                         Sort applications by status (descending)
 search c/COMPANY                                            Search applications by company
 search p/POSITION                                           Search applications by position
 search s/STATUS                                             Search applications by status
