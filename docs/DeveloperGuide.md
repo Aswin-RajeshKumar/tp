@@ -485,9 +485,11 @@ The following sequence diagram illustrates the integrated flow of updating statu
 ## Product Scope
 
 ### Target User Profile
+
 Computing students applying for jobs and want to keep track of their applications.
 
 ### Value Proposition
+
 In the current job market, applying to many roles has become the norm. As such, JobPilot acts as a
 tracker to allow users to get a bird's eye view of all their applications and manage them effectively.
 

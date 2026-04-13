@@ -7,7 +7,7 @@ By using JobPilot, users can track application progress and important details wi
 
 ## Quick Start
 
-1. **Install Java 17+:** Verify that your computer has Java `17` or a newer version installed. <br>
+1. **Install Java 17+:** Verify that your computer has Java `17` installed. <br>
    *Mac users:* Please follow the specific JDK installation guide [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
 2. **Download the App:** Grab the latest `.jar` release file from [here](https://github.com/AY2526S2-CS2113-W13-3/tp/releases).
 3. **Set Up Your Directory:** Move the downloaded file into a dedicated new folder. (Note: Running the app for the first time will automatically generate a `data/JobPilotData.json` file in this directory to save your applications).
