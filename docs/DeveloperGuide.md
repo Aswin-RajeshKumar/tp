@@ -186,35 +186,19 @@ The following sequence diagram shows the flow of deleting an application:
 
 #### Implementation Details
 
-The **Multi-Type Search** feature allows users to retrieve job applications by matching **company name, position, or status** using a **case-insensitive partial search**. Parsing is handled by `SearcherParser`; matching and result display are handled in `CommandRunner#handleSearch(String type, String query)` on the central `ArrayList<Application>`.
+The **Multi-Type Search** feature supports one prefix per command:
 
-The search operation works by iterating through the list and checking whether each application's relevant field contains the user-provided search keyword:
+- `search c/KEYWORD` for company
+- `search p/KEYWORD` for position
+- `search s/KEYWORD` for status
 
-* Type `"c"` → company name
-* Type `"p"` → position
-* Type `"s"` → status
+`SearcherParser` validates command structure and extracts `(type, query)`.  
+`CommandRunner#handleSearch` iterates through the `applications` list, performs case-insensitive partial matching (`contains`), sorts matched results by date, and delegates output to `Ui.showSearchResults`.
 
----
-
-Given below is an example usage scenario demonstrating how the search mechanism behaves at each step.
-
-**Step 1.** The user executes one of the following commands:
-
-```text
-search c/google
-search p/software engineer
-search s/interviewed
-```
-
-Input is read in the `JobPilot` main loop and passed to `Parser.parse(String)`.
-
-**Step 2.** `Parser` recognizes the `search` keyword and delegates to `SearcherParser.parse(String)`.
-
-**Step 3.** `SearcherParser` extracts the search type (`c`, `p`, or `s`) and the keyword after `/`. If the keyword is empty or the prefix is invalid, a `JobPilotException` is thrown and shown via `Ui.showError()`. If the application list is empty, `CommandRunner` reports that the list is empty.
-
-**Step 4.** `CommandRunner` builds a result list with a case-insensitive partial match on the chosen field (`contains` on the lowercased field and query).
-
-**Step 5.** `Ui.showSearchResults` lists matches or reports that none were found.
+Typical flow:
+1. User input is parsed by `Parser` -> `SearcherParser`.
+2. Validation errors (empty term, invalid prefix/format) are surfaced via `Ui.showError`.
+3. Valid searches are executed by `CommandRunner`, then displayed by `Ui`.
 
 ---
 
@@ -263,27 +247,6 @@ The following diagram illustrates the case where no applications match the searc
     * *Pros:* Clear separation between parsing and execution; list logic stays in one place.
     * *Cons:* `CommandRunner` still coordinates UI calls for results.
 
----
-
-**Aspect: Matching strategy**
-
-* **Current Implementation:** Case-insensitive partial matching via `toLowerCase().contains()`.
-    * *Pros:* Flexible, supports partial input (e.g., "goo" matches "Google").
-    * *Cons:* Less efficient for large datasets, limited to substring matching.
-
-* **Alternative:** Exact match using `equalsIgnoreCase()`.
-    * *Pros:* More precise, slightly more efficient.
-    * *Cons:* Too strict, reduces usability.
-
----
-
-#### Future Improvements
-
-- Support multi-field search (e.g., `search c/google p/developer`)
-- Implement fuzzy search for typo tolerance
-- Introduce indexing for faster lookups in large datasets
-- Extract search logic into a separate class for better modularity
-
 ### Sort Application Feature
 
 #### Implementation Details
@@ -296,19 +259,13 @@ The Sort feature sorts all job applications **in place** in the central `ArrayLi
 - `sort date` / `sort company` / `sort status` — by that field, ascending
 - `sort <field> reverse` — descending for that field (e.g. `sort company reverse`)
 
-The sorting logic lives in `CommandRunner#handleSort(String rawSortTerm)`, which selects a `Comparator` and applies `Collections.sort` or `Collections.reverseOrder(comparator)`. Unknown fields (after removing the word `reverse`) produce an error and leave the list unchanged.
+The sorting logic lives in `CommandRunner#handleSort(String rawSortTerm)`:
+- validates tokens (`field` + optional `reverse`)
+- selects comparator by field
+- applies ascending/descending sort
+- prints summary via `Ui.showSortedMessage` and list via `Ui.showApplicationList`
 
-Given below is an example usage scenario:
-
-**Step 1.** The user executes e.g. `sort company`. Input is read in the main loop and passed to `Parser.parse()`.
-
-**Step 2.** `Parser` builds a `ParsedCommand(CommandType.SORT, "company")` (or an empty sort command for default date sort).
-
-**Step 3.** `CommandRunner` checks that the application list is non-empty.
-
-**Step 4.** If the field token is invalid (not `date`, `company`, or `status`), an error is shown and no sort runs.
-
-**Step 5.** Otherwise the list is sorted and `Ui.showSortedMessage` reports the field and whether reverse order was used, followed by `Ui.showApplicationList`.
+If tokens are invalid (e.g. `sort hi`), the method reports an error and leaves list order unchanged.
 
 ---
 
@@ -340,8 +297,6 @@ Given below is an example usage scenario:
   * *Pros:* Stays next to `SEARCH`, `FILTER`, and list display
   * *Cons:* `CommandRunner` grows with feature set
 
----
-
 ### Tag Industry to Job Application Feature
 
 #### Implementation Details
@@ -356,27 +311,17 @@ The Tag feature allows users to add or remove industry tags for job applications
 - `tag 1 add/TECH` — Adds tag "TECH" to application at index 1
 - `tag 2 remove/FINANCE` — Removes tag "FINANCE" from application at index 2
 
-The feature is implemented using the following components:
+Main components:
 - `IndustryTag` — Immutable value object representing a normalized tag
 - `Application` — Stores a `Set<IndustryTag>` and provides `addIndustryTag()` and `removeIndustryTag()` methods
 - `CommandRunner` — Routes the command to the appropriate handler
 - `TaggerParser` — Parses the raw input to extract index, action, and tag content
 
-Given below is an example usage scenario demonstrating how the Tag mechanism behaves at each step.
-
-**Step 1.** The user executes `tag 1 add/TECH`. The command is read by `Ui` and passed to `Parser`.
-
-**Step 2.** `Parser` identifies the `tag` keyword and delegates to `TaggerParser.parse()`.
-
-**Step 3.** `TaggerParser` extracts the index `1`, action `add`, and tag content `TECH`. It returns a `ParsedCommand` object with type `TAG`, index, action, and tag.
-
-**Step 4.** `CommandRunner` receives the `ParsedCommand` and validates the index is within bounds.
-
-**Step 5.** For **add**, `CommandRunner` calls `Application.addIndustryTag(...)`. If the set already contained that tag, it shows an error instead of a success message.
-
-**Step 6.** The `IndustryTag` constructor normalizes the tag (trim → uppercase). New tags are stored in the `Set<IndustryTag>`.
-
-**Step 7.** On successful add, `Ui.showTagAdded()` displays the updated application. For **remove**, `removeIndustryTag` returns whether the tag existed; failure shows `Tag not found on this application!`.
+Execution summary:
+1. `Parser` delegates `tag` commands to `TaggerParser`.
+2. `TaggerParser` validates index/action/tag and returns `ParsedCommand`.
+3. `CommandRunner` validates index and applies add/remove on the target `Application`.
+4. `Ui` prints success output or explicit error (duplicate tag / missing tag).
 
 #### Sequence Diagram
 
@@ -415,20 +360,12 @@ The operations are handled via the following methods:
 * `FilterParser#parse(String)` — Extracts the status query from the raw input (e.g., extracts "OFFER" from `filter s/OFFER`).
 * `Filterer#filterByStatus(ArrayList<Application>, String)` — Iterates through the list, performs the logical match, and delegates the display to the `Ui` class.
 
-**Execution Scenario**
+**Execution Summary**
 
-**Step 1.** The user executes `filter s/OFFER`. The `Scanner` in `JobPilot.main()` reads the input string.
-
-**Step 2.** The `Parser` identifies the `filter` keyword and routes execution to `FilterParser.parse("filter s/OFFER")`.
-
-**Step 3.** `FilterParser` validates the `s/` prefix, extracts the string `"OFFER"`, and returns a `ParsedCommand` object with `type = FILTER` and `searchTerm = "OFFER"`.
-
-**Step 4.** `CommandRunner` handles `FILTER` and calls `Filterer.filterByStatus(applications, cmd.getSearchTerm())`.
-
-**Step 5.** The `Filterer` iterates through the `ArrayList<Application>`. For each application, it performs a case-insensitive check:
-`app.getStatus().toUpperCase().contains(query.toUpperCase())`.
-
-**Step 6.** Matching applications are collected and `Ui.showFilterResults` displays them (or a no-match message when the list is empty).
+1. `Parser` routes `filter` input to `FilterParser`.
+2. `FilterParser` validates `s/` format and returns `ParsedCommand(type=FILTER, searchTerm)`.
+3. `CommandRunner` delegates to `Filterer.filterByStatus(...)`.
+4. `Filterer` performs case-insensitive partial status matching and sends results to `Ui.showFilterResults`.
 
 #### Sequence Diagram
 
@@ -452,6 +389,11 @@ The following sequence diagram illustrates the flow of filtering applications by
 | Missing Arguments | User enters `filter` alone | "Filter command is missing arguments! Use: filter s/STATUS" |
 | Missing Prefix | User enters `filter PENDING` | "Invalid filter format! Expected: filter s/STATUS" |
 | Empty Value | User enters `filter s/` | "The filter value cannot be empty! Please provide a status after 's/'." |
+
+#### Design Considerations
+
+* `FilterParser` and `Filterer` are kept separate so parsing and matching can evolve independently.
+* Partial matching (`contains`) trades strictness for convenience, consistent with search behavior.
 
 ### Separate Notes from Status Feature
 
