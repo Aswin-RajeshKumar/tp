@@ -11,7 +11,7 @@ package "System Memory State (Step 5)" {
         company = "Google"
         position = "Software Engineer"
         date = "2026-01-01"
-        status = "Pending"
+        status = "PENDING"
         notes = ""
         industryTags = [TECH]
     }
