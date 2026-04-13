@@ -31,17 +31,9 @@ Implemented the `edit` command to modify existing applications – update compan
 - Validates `YYYY-MM-DD` date format
 - Clear error messages for invalid indices or empty fields
 
-**Why it's complete:**
-- Supports any combination of fields (e.g., update only company, or all four at once)
-- Handles multi-word values (e.g., "Senior Software Engineer") correctly
-- Validates date format (`YYYY-MM-DD`) and rejects invalid dates
-- Provides clear error messages for invalid indices, empty fields, and malformed input
-
 **Implementation complexity:**
-- Required designing a prefix-based parser that extracts fields without breaking on spaces
 - Needed careful whitespace normalization to handle user input with extra spaces
 - Involved adding setter methods to the `Application` class while preserving immutability where needed
-- Integrated with existing command loop without breaking other features
 
 #### Parser System Refactoring
 Designed and built a modular parser system that routes commands to dedicated subparsers.
@@ -51,16 +43,6 @@ Designed and built a modular parser system that routes commands to dedicated sub
 - `ParsedCommand` data class for clean command data
 - Prefix-based parsing (`c/`, `p/`, `d/`, `s/`) that preserves spaces in values
 - Subparsers: `ApplicationParser`, `DeleterParser`, `EditorParser`, `FilterParser`, `SearcherParser`, `StatusParser`, `TaggerParser`
-
-**Why it's complete:**
-- Encapsulates all parsing logic in one place, separate from command execution
-- Uses a `CommandType` enum for clean routing
-- Returns a `ParsedCommand` object containing all parsed data
-- Subparsers each handle one command, making the system easy to extend
-
-- Uses a CommandType enum for clean routing
-- Returns a ParsedCommand object containing all parsed data 
-- Subparsers (ApplicationParser, DeleterParser, EditorParser, etc.) each handle one command, making the system easy to extend
 
 **Implementation complexity:**
 - Designed a prefix-based parsing algorithm that correctly captures multi-word values (e.g., `c/Amazon Web Services`)
